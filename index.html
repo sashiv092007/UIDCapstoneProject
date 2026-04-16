@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FILMHORIZON — Stream Everything</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="webstyles.css">
+  <style>
+    /* ═══════════════════════════════════════════
+       DETAIL MODAL  (like GOAT reference image)
+    ═══════════════════════════════════════════ */
+    #detailModal {
+      display: none;
+      position: fixed; inset: 0; z-index: 10000;
+      background: rgba(0,0,0,.85);
+      backdrop-filter: blur(10px);
+      align-items: center; justify-content: center;
+      padding: 20px;
+    }
+    #detailModal.open { display: flex; }
+
+    .detail-box {
+      position: relative;
+      width: min(860px, 100%);
+      background: #0d0d0f;
+      border-radius: 20px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.09);
+      box-shadow: 0 40px 100px rgba(0,0,0,.9);
+      animation: detailIn .35s cubic-bezier(.34,1.4,.64,1);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    @keyframes detailIn {
+      from { opacity:0; transform: scale(.88) translateY(30px); }
+      to   { opacity:1; transform: none; }
+    }
+
+    /* backdrop strip */
+    .detail-backdrop {
+      position: relative;
+      height: 220px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .detail-backdrop-img {
+      width: 100%; height: 100%;
+      object-fit: cover; object-position: center 20%;
+      display: block;
+      filter: brightness(.55);
+    }
+    #detailBg {
+      position: absolute; inset: 0;
+      background-size: cover; background-position: center 20%;
+      filter: brightness(.5);
+    }
+    .detail-backdrop-fade {
+      position: absolute; inset: 0;
+      background: linear-gradient(to bottom, transparent 30%, #0d0d0f 100%);
+    }
+    .detail-close-btn {
+      position: absolute; top: 14px; right: 14px; z-index: 5;
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(0,0,0,.6); border: 1px solid rgba(255,255,255,.15);
+      color: #fff; font-size: .85rem;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: background .2s;
+    }
+    .detail-close-btn:hover { background: var(--accent); }
+
+    /* main content row */
+    .detail-content {
+      display: flex; gap: 28px;
+      padding: 0 28px 32px;
+      margin-top: -80px; /* overlap backdrop */
+      position: relative; z-index: 2;
+    }
+
+    /* poster */
+    .detail-poster-wrap {
+      flex-shrink: 0;
+      width: 140px;
+    }
+    .detail-poster-wrap img {
+      width: 100%; border-radius: 12px;
+      box-shadow: 0 12px 40px rgba(0,0,0,.7);
+      border: 2px solid rgba(255,255,255,.1);
+    }
+
+    /* info */
+    .detail-info { flex: 1; min-width: 0; padding-top: 82px; }
+
+    .detail-genres {
+      display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px;
+    }
+    .detail-genre-tag {
+      font-size: .65rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+      background: rgba(108,99,255,.18); border: 1px solid rgba(108,99,255,.35);
+      color: var(--accent); padding: 3px 9px; border-radius: 4px;
+    }
+
+    .detail-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(1.6rem, 5vw, 2.8rem);
+      line-height: 1; color: #fff; margin-bottom: 10px;
+    }
+
+    .detail-meta-row {
+      display: flex; align-items: center; gap: 14px;
+      font-size: .8rem; color: rgba(255,255,255,.6);
+      margin-bottom: 14px; flex-wrap: wrap;
+    }
+    .detail-meta-row .dm-rating {
+      background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12);
+      padding: 3px 10px; border-radius: 6px;
+      font-weight: 700; color: #fff; font-size: .78rem;
+    }
+    .detail-meta-row .dm-sep {
+      width: 3px; height: 3px; border-radius: 50%;
+      background: rgba(255,255,255,.3);
+    }
+
+    .detail-desc {
+      font-size: .86rem; line-height: 1.65;
+      color: rgba(255,255,255,.65);
+      margin-bottom: 22px;
+    }
+
+    /* rating circle */
+    .detail-score-row {
+      display: flex; align-items: center; gap: 14px; margin-bottom: 22px;
+    }
+    .detail-score-circle {
+      width: 56px; height: 56px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      position: relative; flex-shrink: 0;
+    }
+    .detail-score-circle::before {
+      content: '';
+      position: absolute; inset: 4px;
+      border-radius: 50%;
+      background: #0d0d0f;
+    }
+    .detail-score-num {
+      position: relative; z-index: 1;
+      font-size: .95rem; font-weight: 800;
+      color: #fff;
+    }
+    .detail-score-label {
+      font-size: .72rem; color: rgba(255,255,255,.5); line-height: 1.4;
+    }
+    .detail-score-label strong {
+      display: block; font-size: .82rem; color: rgba(255,255,255,.8);
+    }
+
+    /* action buttons */
+    .detail-actions {
+      display: flex; gap: 10px; flex-wrap: wrap;
+    }
+    .detail-btn-primary {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--accent); border: none; color: #fff;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .82rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+      padding: 11px 22px; border-radius: 99px; cursor: pointer;
+      transition: background .2s, transform .15s;
+    }
+    .detail-btn-primary:hover { background: var(--accent2); transform: translateY(-2px); }
+
+    .detail-btn-secondary {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.18);
+      color: #fff; font-family: 'DM Sans', sans-serif;
+      font-size: .82rem; font-weight: 600;
+      padding: 11px 22px; border-radius: 99px; cursor: pointer;
+      transition: background .2s;
+    }
+    .detail-btn-secondary:hover { background: rgba(255,255,255,.14); }
+
+    /* pricing notice */
+    .detail-notice {
+      margin-top: 18px;
+      font-size: .68rem; color: rgba(255,255,255,.3); line-height: 1.5;
+      border-top: 1px solid rgba(255,255,255,.06); padding-top: 14px;
+    }
+
+    /* ═══════════════════════════════════════════
+       FULLSCREEN TRAILER  (like second reference)
+    ═══════════════════════════════════════════ */
+    
+    #fullscreenTrailer {
+  display: none; /* Controlled by JS */
+  position: fixed;
+  inset: 0;
+  background: #000;
+  z-index: 999999; /* Higher than everything else */
+  flex-direction: column;
+}
+
+#fullscreenTrailer.open {
+  display: flex !important;
+}
+
+    .fs-header {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 20px;
+      background: rgba(0,0,0,.7);
+      position: absolute; top: 0; left: 0; right: 0; z-index: 5;
+      backdrop-filter: blur(6px);
+    }
+    .fs-back-btn {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(255,255,255,.12); border: none;
+      color: #fff; font-size: 1rem;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: background .2s; flex-shrink: 0;
+    }
+    .fs-back-btn:hover { background: rgba(255,255,255,.25); }
+    .fs-title {
+      font-family: 'DM Sans', sans-serif;
+      font-size: .95rem; font-weight: 600; color: #fff;
+    }
+
+    .fs-video-wrap {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+}
+    #fsIframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+    /* ─── responsive tweaks ─── */
+    @media (max-width: 600px) {
+      .detail-content { flex-direction: column; align-items: center; margin-top: -40px; }
+      .detail-poster-wrap { width: 110px; }
+      .detail-info { padding-top: 16px; text-align: center; }
+      .detail-genres, .detail-actions, .detail-score-row { justify-content: center; }
+    }
+
+  </style>
+</head>
+<body class="dark">
+
+<!-- ───────── NAVBAR ───────── -->
+<nav class="navbar" id="navbar">
+  <div class="navbar-inner">
+    <div class="logo" onclick="window.location.href='signup.htm'" style="cursor:pointer;" title="Sign In / Sign Out">FILMHORIZON</div>
+    <nav class="nav-links">
+      <a href="index.html" class="active">Home</a>
+      <a href="movie.html">Movies</a>
+      <a href="series.html">Series</a>
+      <a href="anime.html">Anime</a>
+      <a href="tvshows.html">TV Shows</a>
+    </nav>
+    <div class="nav-right">
+      <div class="search-wrap">
+        <input type="text" id="searchInput" placeholder="Search titles…" autocomplete="off">
+        <button id="searchBtn"><i class="fas fa-search"></i></button>
+      </div>
+      <!-- WATCHLIST BUTTON -->
+      <div class="watchlist-wrap" id="watchlistWrap">
+        <button class="watchlist-btn icon-btn" id="watchlistToggle" onclick="toggleWatchlist(event)">
+          <i class="fas fa-bookmark"></i>
+          <span class="watchlist-count" id="watchlistCount" style="display:none">0</span>
+        </button>
+        <div class="watchlist-dropdown" id="watchlistDropdown">
+          <div class="wl-header">
+            <span class="wl-title"><i class="fas fa-bookmark"></i> Watchlist</span>
+            <span class="wl-count-label" id="wlCountLabel">0 saved</span>
+          </div>
+          <div class="wl-empty" id="wlEmpty">
+            <i class="fas fa-bookmark" style="font-size:2rem;color:var(--muted);margin-bottom:10px"></i>
+            <p>No titles saved yet.</p>
+            <small>Click <strong>+</strong> on any show to add it here.</small>
+          </div>
+          <div class="wl-list" id="wlList"></div>
+        </div>
+      </div>
+      <button class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i></button>
+      <div class="profile-btn" onclick="openProfile()" style="cursor:pointer; display:flex; align-items:center; gap:10px;" title="View Profile">
+  <div class="profile-avatar">?</div>
+  <div style="display:flex; flex-direction:column; text-align:left;">
+    <span class="profile-name" style="font-size:14px; font-weight:600;">User</span>
+    <small id="userPlanDisplay" style="font-size:10px; color:#7070a0; font-weight:bold;">FREE PLAN</small>
+  </div>
+  <i class="fas fa-chevron-down" style="font-size:.62rem;color:var(--muted);margin-left:2px"></i>
+</div>
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ───────── SEARCH RESULTS ───────── -->
+<div class="search-results" id="searchResults">
+  <div class="search-results-title">Results for "<span id="searchQuery"></span>"</div>
+  <div class="card-row" id="searchResultsRow"></div>
+</div>
+
+<!-- ───────── HERO ───────── -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-content fade-in" style="display:flex;align-items:center;gap:40px;flex-wrap:wrap;">
+  <!-- The Office Poster -->
+    <div style="flex-shrink:0;display:flex;flex-direction:column;align-items:center;">
+      <img src="https://image.tmdb.org/t/p/w400/qWnJzyZhyy74gjpSjIXWmuk0ifX.jpg"
+        alt="The Office"
+        onerror="this.src='https://placehold.co/200x300/111118/e50914?text=The+Office'"
+        style="width:190px;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.85),0 0 0 2px rgba(255,255,255,.08);object-fit:cover;">
+    </div>
+    <!-- Hero Text -->
+    <div style="flex:1;min-width:260px;">
+      <div class="hero-badge"><i class="fas fa-fire"></i> Trending Now</div>
+      <h1 class="hero-title">The Office<span>.</span></h1>
+      <div class="hero-meta">
+        <span class="hero-rating"><i class="fas fa-star"></i> 9.0</span>
+        <span class="hero-tag">Comedy</span>
+        <span class="hero-tag">Drama</span>
+        <span class="hero-tag">2005</span>
+        <span class="hero-tag">9 Seasons</span>
+      </div>
+      <p class="hero-desc">A mockumentary sitcom following the everyday lives of office employees in the Scranton, Pennsylvania branch of the fictional Dunder Mifflin Paper Company.</p>
+      <div class="hero-actions">
+        <button class="btn-primary" onclick="openTrailer('LHOtME2DL4g', 'The Office')"><i class="fas fa-play"></i> Watch Trailer</button>
+        <button class="btn-secondary" id="heroMyListBtn" onclick="heroAddToMyList()"><i class="fas fa-plus"></i> My List</button>
+        <button class="btn-secondary" onclick="openDetail(99)"><i class="fas fa-info-circle"></i> More Info</button>
+      </div>
+    </div>  
+  </div>
+  <div class="scroll-indicator">
+    <span>SCROLL</span>
+    <i class="fas fa-chevron-down"></i>
+  </div>
+</section>
+
+<!-- ───────── GENRE PILLS ───────── -->
+<div class="genre-bar">
+  <button class="genre-pill active" onclick="filterGenre(this)">All</button>
+  <button class="genre-pill" onclick="filterGenre(this)">Action</button>
+  <button class="genre-pill" onclick="filterGenre(this)">Comedy</button>
+  <button class="genre-pill" onclick="filterGenre(this)">Drama</button>
+  <button class="genre-pill" onclick="filterGenre(this)">Sci-Fi</button>
+  <button class="genre-pill" onclick="filterGenre(this)">Horror</button>
+  <button class="genre-pill" onclick="filterGenre(this)">Romance</button>
+  <button class="genre-pill" onclick="filterGenre(this)">Thriller</button>
+  <button class="genre-pill" onclick="filterGenre(this)">Animation</button>
+  <button class="genre-pill" onclick="filterGenre(this)">Documentary</button>
+</div>
+
+<!-- ───────── CONTINUE WATCHING ───────── -->
+<section class="section">
+  <div class="section-header">
+    <h2 class="section-title"><span></span>Continue Watching</h2>
+    <a class="see-all" href="#">See All <i class="fas fa-chevron-right"></i></a>
+  </div>
+  <div class="row-wrap">
+    <button class="row-arrow left" onclick="scrollRow('continueRow',-1)"><i class="fas fa-chevron-left"></i></button>
+    <div class="card-row" id="continueRow"></div>
+    <button class="row-arrow right" onclick="scrollRow('continueRow',1)"><i class="fas fa-chevron-right"></i></button>
+  </div>
+</section>
+
+<!-- ───────── NEW RELEASES ───────── -->
+<section class="section">
+  <div class="section-header">
+    <h2 class="section-title"><span></span>New Releases</h2>
+    <a class="see-all" href="#">See All <i class="fas fa-chevron-right"></i></a>
+  </div>
+  <div class="row-wrap">
+    <button class="row-arrow left" onclick="scrollRow('newRow',-1)"><i class="fas fa-chevron-left"></i></button>
+    <div class="card-row" id="newRow"></div>
+    <button class="row-arrow right" onclick="scrollRow('newRow',1)"><i class="fas fa-chevron-right"></i></button>
+  </div>
+</section>
+
+<!-- ───────── PROMO BANNER ───────── -->
+<div class="promo-banner">
+  <div class="promo-content">
+    <div class="promo-label"><i class="fas fa-crown"></i> &nbsp;Premium Plan</div>
+    <div class="promo-title">Watch in 4K Ultra HD</div>
+    <button class="promo-cta" onclick="openPricing()"><i class="fas fa-bolt"></i> Upgrade Now</button>
+  </div>
+  <div class="promo-deco">4K</div>
+</div>
+
+<!-- ───────── TOP 10 ───────── -->
+<section class="section">
+  <div class="section-header">
+    <h2 class="section-title"><span></span>Top 10 This Week</h2>
+    <a class="see-all" href="#">See All <i class="fas fa-chevron-right"></i></a>
+  </div>
+  <div class="row-wrap">
+    <button class="row-arrow left" onclick="scrollRow('top10Row',-1)"><i class="fas fa-chevron-left"></i></button>
+    <div class="card-row" id="top10Row"></div>
+    <button class="row-arrow right" onclick="scrollRow('top10Row',1)"><i class="fas fa-chevron-right"></i></button>
+  </div>
+</section>
+
+<!-- ───────── TRENDING ───────── -->
+<section class="section">
+  <div class="section-header">
+    <h2 class="section-title"><span></span>Trending Now</h2>
+    <a class="see-all" href="#">See All <i class="fas fa-chevron-right"></i></a>
+  </div>
+  <div class="row-wrap">
+    <button class="row-arrow left" onclick="scrollRow('trendRow',-1)"><i class="fas fa-chevron-left"></i></button>
+    <div class="card-row" id="trendRow"></div>
+    <button class="row-arrow right" onclick="scrollRow('trendRow',1)"><i class="fas fa-chevron-right"></i></button>
+  </div>
+</section>
+
+<!-- ───────── FOOTER ───────── -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="logo" onclick="window.location.href='signup.htm'" style="cursor:pointer;" title="Sign In / Sign Out">FILMHORIZON</div>
+      <p>Your ultimate destination for movies, series, anime, and more. Stream without limits.</p>
+      <div class="footer-socials">
+        <a href="#" class="social-btn"><i class="fab fa-twitter"></i></a>
+        <a href="#" class="social-btn"><i class="fab fa-instagram"></i></a>
+        <a href="#" class="social-btn"><i class="fab fa-facebook-f"></i></a>
+        <a href="#" class="social-btn"><i class="fab fa-youtube"></i></a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Browse</h4>
+      <ul>
+        <li><a href="#">Home</a></li>
+        <li><a href="#">Movies</a></li>
+        <li><a href="#">TV Series</a></li>
+        <li><a href="#">Anime</a></li>
+        <li><a href="#">My List</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Account</h4>
+      <ul>
+        <li><a href="#">Profile</a></li>
+        <li><a href="#">Settings</a></li>
+        <li><a href="#">Subscription</a></li>
+        <li><a href="#">Watch History</a></li>
+        <li><a href="#">Logout</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Support</h4>
+      <ul>
+        <li><a href="#">Help Center</a></li>
+        <li><a href="#">Contact Us</a></li>
+        <li><a href="#">Privacy Policy</a></li>
+        <li><a href="#">Terms of Use</a></li>
+        <li><a href="#">Cookie Preferences</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 FILMHORIZON. All rights reserved.</span>
+    <span>Made with <i class="fas fa-heart" style="color:var(--accent)"></i> for cinephiles</span>
+  </div>
+</footer>
+
+<!-- ══════════════════════════════════════
+       DETAIL MODAL
+  ══════════════════════════════════════ -->
+  <div id="detailModal">
+    <div class="detail-box">
+      <!-- Backdrop banner -->
+      <div class="detail-backdrop">
+        <div id="detailBg"></div>
+        <div class="detail-backdrop-fade"></div>
+        <button class="detail-close-btn" onclick="closeDetail()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <!-- Main row: poster + info -->
+      <div class="detail-content">
+        <div class="detail-poster-wrap">
+          <img id="detailPoster" src="" alt="" />
+        </div>
+        <div class="detail-info">
+          <div class="detail-genres" id="detailGenres"></div>
+          <h2 class="detail-title" id="detailTitle"></h2>
+
+          <div class="detail-meta-row">
+            <span class="dm-rating" id="detailYear"></span>
+            <span class="dm-sep"></span>
+            <span id="detailRuntime"></span>
+            <span class="dm-sep"></span>
+            <span>Dir: <span id="detailDirector"></span></span>
+          </div>
+
+          <!-- Tomato-style score -->
+          <div class="detail-score-row">
+            <div class="detail-score-circle" id="detailRatingCircle">
+              <span class="detail-score-num" id="detailRatingNum"></span>
+            </div>
+            <div class="detail-score-label">
+              <strong>Audience Score</strong>
+              Based on ratings
+            </div>
+          </div>
+
+          <p class="detail-desc" id="detailDesc"></p>
+
+          <div class="detail-actions">
+            <button class="detail-btn-secondary" id="detailWishlistBtn">
+              + Wishlist
+            </button>
+            <button class="detail-btn-primary" id="detailPreviewBtn">
+              <i class="fas fa-play"></i> Preview
+            </button>
+          </div>
+
+          <p class="detail-notice">
+            PRICING SUBJECT TO CHANGE. CONFIRM CURRENT PRICING WITH APPLICABLE RETAILER.
+            ALL TRANSACTIONS SUBJECT TO APPLICABLE LICENSE TERMS AND CONDITIONS.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+   <!-- ══════════════════════════════════════
+       FULLSCREEN TRAILER
+  ══════════════════════════════════════ -->
+  <div id="fullscreenTrailer">
+  <div class="fs-header">
+    <button class="fs-back-btn" onclick="closeTrailer()"><i class="fas fa-arrow-left"></i></button>
+    <div class="fs-title">Trailer</div>
+  </div>
+  <div class="fs-video-wrap">
+    <iframe id="fsIframe" src="" frameborder="0"></iframe>
+  </div>
+</div>
+
+<!-- ───────── TRAILER LIMIT UPGRADE MODAL ───────── -->
+<div class="upgrade-overlay" id="upgradeModal">
+  <div class="upgrade-box">
+    <button class="upgrade-close" onclick="closeUpgradeModal()"><i class="fas fa-times"></i></button>
+    <div class="upgrade-icon"><i class="fas fa-lock"></i></div>
+    <h2 class="upgrade-title">You've reached your free limit</h2>
+    <p class="upgrade-sub">Free users can watch <strong>2 trailers</strong> per session. Upgrade to enjoy unlimited trailers, ad-free streaming, and more.</p>
+    <div class="upgrade-actions">
+      <button class="upgrade-btn-primary" onclick="closeUpgradeModal();openPricing()"><i class="fas fa-bolt"></i> Upgrade Plan</button>
+      <button class="upgrade-btn-secondary" onclick="closeUpgradeModal()">Maybe Later</button>
+    </div>
+    <p class="upgrade-note">✓ Cancel anytime &nbsp;·&nbsp; ✓ Instant access &nbsp;·&nbsp; ✓ Starting ₹99/mo</p>
+  </div>
+</div>
+
+<!-- ───────── TOAST CONTAINER ───────── -->
+<div class="toast-wrap" id="toastWrap"></div>
+
+<!-- ══════════════════════════════════════ UPI PAYMENT MODAL ══════════════════════════════════════ -->
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&display=swap');
+.upi-overlay{position:fixed;inset:0;background:rgba(0,0,0,.92);backdrop-filter:blur(8px);z-index:999999;display:none;align-items:center;justify-content:center;padding:16px}
+.upi-overlay.open{display:flex}
+.upi-box{background:#111118;border:1px solid #222230;border-radius:24px;width:100%;max-width:410px;overflow:hidden;box-shadow:0 40px 80px rgba(0,0,0,.85);animation:upiSlideUp .35s cubic-bezier(.22,1,.36,1)}
+@keyframes upiSlideUp{from{opacity:0;transform:translateY(28px) scale(.97)}to{opacity:1;transform:none}}
+.upi-hdr{background:linear-gradient(135deg,#1a0a0f,#120a1a);padding:22px 24px 18px;border-bottom:1px solid #1e1e2e;display:flex;align-items:center;justify-content:space-between}
+.upi-hdr-l{display:flex;flex-direction:column;gap:4px}
+.upi-brand{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:3px;color:#e50914;text-transform:uppercase}
+.upi-plan-nm{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:#fff}
+.upi-amt-badge{background:rgba(229,9,20,.15);border:1px solid rgba(229,9,20,.3);border-radius:10px;padding:8px 16px;text-align:right}
+.upi-amt-lbl{font-size:10px;color:#666;text-transform:uppercase;letter-spacing:1px}
+.upi-amt-val{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:#e50914}
+.upi-amt-sub{font-size:10px;color:#555}
+.upi-tabs{display:flex;border-bottom:1px solid #1e1e2e;background:#0d0d16}
+.upi-tab{flex:1;padding:14px 0;background:none;border:none;color:#555;font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:color .2s;position:relative;font-family:'DM Sans',sans-serif}
+.upi-tab.active{color:#fff}
+.upi-tab.active::after{content:'';position:absolute;bottom:0;left:20%;right:20%;height:2px;background:#e50914;border-radius:2px 2px 0 0}
+.upi-body{padding:24px}
+.upi-qr-sec{display:flex;flex-direction:column;align-items:center;gap:16px}
+.upi-qr-wrap{background:#fff;border-radius:16px;padding:14px;width:180px;height:180px;display:flex;align-items:center;justify-content:center;position:relative;box-shadow:0 0 0 6px rgba(229,9,20,.08)}
+.upi-qr-corner{position:absolute;width:22px;height:22px;border-color:#e50914;border-style:solid;border-width:0}
+.upi-qr-corner.tl{top:6px;left:6px;border-top-width:3px;border-left-width:3px;border-radius:4px 0 0 0}
+.upi-qr-corner.tr{top:6px;right:6px;border-top-width:3px;border-right-width:3px;border-radius:0 4px 0 0}
+.upi-qr-corner.bl{bottom:6px;left:6px;border-bottom-width:3px;border-left-width:3px;border-radius:0 0 0 4px}
+.upi-qr-corner.br{bottom:6px;right:6px;border-bottom-width:3px;border-right-width:3px;border-radius:0 0 4px 0}
+.upi-qr-hint{font-size:12px;color:#555;text-align:center;line-height:1.5}
+.upi-qr-hint strong{color:#888;display:block;margin-bottom:2px}
+.upi-app-pills{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.upi-app-pill{background:#1a1a26;border:1px solid #2a2a3a;border-radius:20px;padding:5px 12px;font-size:11px;color:#aaa;display:flex;align-items:center;gap:5px}
+.upi-dot{width:7px;height:7px;border-radius:50%}
+.upi-wait{font-size:11px;color:#444;display:flex;align-items:center;gap:5px}
+.upi-wait-dot{width:6px;height:6px;border-radius:50%;background:#2ecc71;animation:upiPulse 1.5s infinite}
+@keyframes upiPulse{0%,100%{opacity:1}50%{opacity:.3}}
+.upi-id-sec{display:flex;flex-direction:column;gap:18px}
+.upi-field-lbl{font-size:11px;color:#555;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.upi-iw{background:#0d0d16;border:1px solid #222232;border-radius:12px;display:flex;align-items:center;padding:0 16px;gap:10px;transition:border-color .2s,box-shadow .2s}
+.upi-iw:focus-within{border-color:#e50914;box-shadow:0 0 0 3px rgba(229,9,20,.08)}
+.upi-inp{flex:1;background:none;border:none;outline:none;color:#fff;font-family:'DM Sans',sans-serif;font-size:14px;padding:14px 0}
+.upi-inp::placeholder{color:#333}
+.upi-suffix{color:#e50914;font-weight:700;font-size:15px;flex-shrink:0}
+.upi-popular-row{display:flex;flex-wrap:wrap;gap:7px}
+.upi-pop-pill{background:#141420;border:1px solid #252535;border-radius:8px;padding:5px 12px;font-size:12px;color:#777;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:5px}
+.upi-pop-pill:hover{border-color:#e50914;color:#fff;background:#1a0a0f}
+.upi-verify-btn{width:100%;padding:14px;background:#1a1a26;border:1px solid #252535;border-radius:12px;color:#888;font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.upi-verify-btn:hover{border-color:#555;color:#bbb}
+.upi-verify-btn.ok{background:rgba(46,204,113,.08);border-color:rgba(46,204,113,.3);color:#2ecc71}
+.upi-pay-wrap{padding:0 24px 24px}
+.upi-pay-btn{width:100%;padding:16px;background:linear-gradient(135deg,#e50914,#c0070f);border:none;border-radius:14px;color:#fff;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:.5px;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:10px;position:relative;overflow:hidden}
+.upi-pay-btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(229,9,20,.35)}
+.upi-shine{position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.12),transparent);animation:upiShine 3s infinite 1s}
+@keyframes upiShine{0%{left:-100%}40%,100%{left:150%}}
+.upi-secure{display:flex;align-items:center;justify-content:center;gap:5px;margin-top:10px;font-size:11px;color:#3a3a50}
+.upi-divider{height:1px;background:#1a1a26;margin:0 24px}
+.upi-proc{padding:40px 24px;display:none;flex-direction:column;align-items:center;gap:16px;text-align:center}
+.upi-proc.active{display:flex}
+.upi-proc-ring{width:72px;height:72px;border-radius:50%;border:3px solid #1a1a26;border-top-color:#e50914;animation:upiSpin .8s linear infinite;position:relative}
+@keyframes upiSpin{to{transform:rotate(360deg)}}
+.upi-proc-ring::after{content:'₹';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:22px;color:#e50914;font-family:'Syne',sans-serif;font-weight:700}
+.upi-proc-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:#fff}
+.upi-proc-sub{font-size:13px;color:#555;line-height:1.6}
+.upi-steps{display:flex;flex-direction:column;gap:8px;width:100%;margin-top:8px}
+.upi-step{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;background:#0d0d16;border:1px solid #1a1a26;font-size:12px;color:#555;transition:all .4s}
+.upi-step.done{border-color:rgba(46,204,113,.2);color:#2ecc71;background:rgba(46,204,113,.04)}
+.upi-step.act{border-color:rgba(229,9,20,.2);color:#fff;background:rgba(229,9,20,.04)}
+.upi-succ{padding:36px 24px;display:none;flex-direction:column;align-items:center;gap:14px;text-align:center}
+.upi-succ.active{display:flex}
+.upi-succ-circle{width:80px;height:80px;border-radius:50%;background:rgba(46,204,113,.1);border:2px solid rgba(46,204,113,.3);display:flex;align-items:center;justify-content:center;animation:upiPop .5s cubic-bezier(.22,1,.36,1)}
+@keyframes upiPop{from{transform:scale(.5);opacity:0}to{transform:scale(1);opacity:1}}
+.upi-succ-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:#fff}
+.upi-succ-sub{font-size:13px;color:#555;line-height:1.6}
+.upi-succ-card{background:#0d0d16;border:1px solid #1e1e2e;border-radius:14px;padding:16px 20px;width:100%;text-align:left;display:flex;flex-direction:column;gap:10px}
+.upi-succ-row{display:flex;justify-content:space-between;align-items:center}
+.upi-succ-rl{font-size:12px;color:#555}
+.upi-succ-rv{font-size:13px;color:#ccc;font-weight:500}
+.upi-succ-rv.green{color:#2ecc71;font-weight:700}
+.upi-succ-rv.red{color:#e50914}
+.upi-succ-div{height:1px;background:#1a1a26}
+.upi-done-btn{width:100%;padding:14px;background:rgba(46,204,113,.12);border:1px solid rgba(46,204,113,.3);border-radius:14px;color:#2ecc71;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s}
+.upi-done-btn:hover{background:rgba(46,204,113,.2)}
+</style>
+
+<div class="upi-overlay" id="upiPayModal">
+ <div class="upi-box">
+  <div class="upi-hdr">
+   <div class="upi-hdr-l">
+    <span class="upi-brand">FILMHORIZON</span>
+    <span class="upi-plan-nm" id="upiPlanName">Premium Plan</span>
+   </div>
+   <div class="upi-amt-badge">
+    <div class="upi-amt-lbl">Total</div>
+    <div class="upi-amt-val" id="upiAmtVal">₹499</div>
+    <div class="upi-amt-sub">/month · incl. GST</div>
+   </div>
+  </div>
+  <div id="upiMain">
+   <div class="upi-tabs">
+    <button class="upi-tab active" id="upiTabQR" onclick="upiSwitchTab('qr')">
+     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3M17 20h3M20 17v3"/></svg>Scan QR
+    </button>
+    <button class="upi-tab" id="upiTabID" onclick="upiSwitchTab('id')">
+     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>UPI ID
+    </button>
+   </div>
+   <div class="upi-body" id="upiPanelQR">
+    <div class="upi-qr-sec">
+     <div class="upi-qr-wrap">
+      <div class="upi-qr-corner tl"></div><div class="upi-qr-corner tr"></div>
+      <div class="upi-qr-corner bl"></div><div class="upi-qr-corner br"></div>
+      <svg width="152" height="152" viewBox="0 0 152 152" xmlns="http://www.w3.org/2000/svg">
+       <rect x="4" y="4" width="42" height="42" rx="4" fill="#111"/><rect x="8" y="8" width="34" height="34" rx="2" fill="white"/><rect x="14" y="14" width="22" height="22" rx="1" fill="#111"/>
+       <rect x="106" y="4" width="42" height="42" rx="4" fill="#111"/><rect x="110" y="8" width="34" height="34" rx="2" fill="white"/><rect x="116" y="14" width="22" height="22" rx="1" fill="#111"/>
+       <rect x="4" y="106" width="42" height="42" rx="4" fill="#111"/><rect x="8" y="110" width="34" height="34" rx="2" fill="white"/><rect x="14" y="116" width="22" height="22" rx="1" fill="#111"/>
+       <g fill="#111"><rect x="52" y="4" width="6" height="6"/><rect x="62" y="4" width="6" height="6"/><rect x="72" y="4" width="6" height="6"/><rect x="84" y="4" width="6" height="6"/><rect x="94" y="4" width="6" height="6"/><rect x="52" y="14" width="6" height="6"/><rect x="68" y="14" width="6" height="6"/><rect x="84" y="14" width="6" height="6"/><rect x="58" y="24" width="6" height="6"/><rect x="72" y="24" width="6" height="6"/><rect x="88" y="24" width="6" height="6"/><rect x="52" y="34" width="6" height="6"/><rect x="64" y="34" width="6" height="6"/><rect x="78" y="34" width="6" height="6"/><rect x="4" y="52" width="6" height="6"/><rect x="16" y="52" width="6" height="6"/><rect x="52" y="52" width="6" height="6"/><rect x="64" y="52" width="6" height="6"/><rect x="90" y="52" width="6" height="6"/><rect x="116" y="52" width="6" height="6"/><rect x="128" y="52" width="6" height="6"/><rect x="8" y="62" width="6" height="6"/><rect x="22" y="62" width="6" height="6"/><rect x="58" y="62" width="6" height="6"/><rect x="72" y="62" width="6" height="6"/><rect x="100" y="62" width="6" height="6"/><rect x="126" y="62" width="6" height="6"/><rect x="4" y="72" width="6" height="6"/><rect x="18" y="72" width="6" height="6"/><rect x="54" y="72" width="6" height="6"/><rect x="80" y="72" width="6" height="6"/><rect x="108" y="72" width="6" height="6"/><rect x="134" y="72" width="6" height="6"/><rect x="10" y="82" width="6" height="6"/><rect x="24" y="82" width="6" height="6"/><rect x="60" y="82" width="6" height="6"/><rect x="88" y="82" width="6" height="6"/><rect x="116" y="82" width="6" height="6"/><rect x="142" y="82" width="6" height="6"/><rect x="4" y="92" width="6" height="6"/><rect x="16" y="92" width="6" height="6"/><rect x="56" y="92" width="6" height="6"/><rect x="84" y="92" width="6" height="6"/><rect x="110" y="92" width="6" height="6"/><rect x="52" y="106" width="6" height="6"/><rect x="66" y="106" width="6" height="6"/><rect x="94" y="106" width="6" height="6"/><rect x="122" y="106" width="6" height="6"/><rect x="58" y="116" width="6" height="6"/><rect x="72" y="116" width="6" height="6"/><rect x="86" y="116" width="6" height="6"/><rect x="114" y="116" width="6" height="6"/><rect x="142" y="116" width="6" height="6"/><rect x="52" y="126" width="6" height="6"/><rect x="78" y="126" width="6" height="6"/><rect x="106" y="126" width="6" height="6"/><rect x="128" y="126" width="6" height="6"/><rect x="56" y="136" width="6" height="6"/><rect x="84" y="136" width="6" height="6"/><rect x="112" y="136" width="6" height="6"/><rect x="140" y="136" width="6" height="6"/></g>
+      </svg>
+     </div>
+     <div class="upi-qr-hint"><strong>Scan with any UPI app</strong>QR valid for <span id="upiQrTimer">4:59</span></div>
+     <div class="upi-app-pills">
+      <div class="upi-app-pill"><div class="upi-dot" style="background:#00b9f1"></div>PhonePe</div>
+      <div class="upi-app-pill"><div class="upi-dot" style="background:#3a7bd5"></div>GPay</div>
+      <div class="upi-app-pill"><div class="upi-dot" style="background:#6739b7"></div>Paytm</div>
+      <div class="upi-app-pill"><div class="upi-dot" style="background:#f37b1d"></div>BHIM</div>
+     </div>
+     <div class="upi-wait"><div class="upi-wait-dot"></div>Waiting for payment…</div>
+    </div>
+   </div>
+   <div class="upi-body" id="upiPanelID" style="display:none">
+    <div class="upi-id-sec">
+     <div>
+      <div class="upi-field-lbl">Your UPI ID</div>
+      <div class="upi-iw" id="upiIW">
+       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2"><path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/></svg>
+       <input class="upi-inp" id="upiIDInput" placeholder="yourname" autocomplete="off" oninput="upiOnInput()"/>
+       <span class="upi-suffix" id="upiSuffix">@upi</span>
+      </div>
+     </div>
+     <div>
+      <div class="upi-field-lbl">Popular apps</div>
+      <div class="upi-popular-row">
+       <div class="upi-pop-pill" onclick="upiSetSuffix('phonepe')"><div class="upi-dot" style="background:#00b9f1"></div>PhonePe</div>
+       <div class="upi-pop-pill" onclick="upiSetSuffix('okaxis')"><div class="upi-dot" style="background:#3a7bd5"></div>GPay</div>
+       <div class="upi-pop-pill" onclick="upiSetSuffix('paytm')"><div class="upi-dot" style="background:#6739b7"></div>Paytm</div>
+       <div class="upi-pop-pill" onclick="upiSetSuffix('ybl')"><div class="upi-dot" style="background:#f37b1d"></div>PhonePe YBL</div>
+       <div class="upi-pop-pill" onclick="upiSetSuffix('upi')"><div class="upi-dot" style="background:#888"></div>BHIM</div>
+      </div>
+     </div>
+     <button class="upi-verify-btn" id="upiVerifyBtn" onclick="upiVerify()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      Verify UPI ID
+     </button>
+    </div>
+   </div>
+   <div class="upi-divider"></div>
+   <div class="upi-pay-wrap">
+    <button class="upi-pay-btn" onclick="upiStartPayment()">
+     <div class="upi-shine"></div>
+     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+     <span id="upiPayBtnTxt">Pay ₹499 Securely</span>
+    </button>
+    <div class="upi-secure">
+     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+     256-bit SSL · UPI Encrypted · RBI Compliant
+    </div>
+   </div>
+  </div>
+  <div class="upi-proc" id="upiProc">
+   <div class="upi-proc-ring"></div>
+   <div class="upi-proc-title">Processing Payment</div>
+   <div class="upi-proc-sub">Please do not close this window<br>or press the back button</div>
+   <div class="upi-steps">
+    <div class="upi-step act" id="upiStep1"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Contacting UPI network…</div>
+    <div class="upi-step" id="upiStep2"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>Verifying bank details…</div>
+    <div class="upi-step" id="upiStep3"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>Confirming transaction…</div>
+   </div>
+  </div>
+  <div class="upi-succ" id="upiSucc">
+   <div class="upi-succ-circle"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#2ecc71" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div>
+   <div class="upi-succ-title">Payment Successful!</div>
+   <div class="upi-succ-sub">Welcome to <strong style="color:#fff" id="upiSuccPlan">Premium</strong>. Your account has been upgraded.</div>
+   <div class="upi-succ-card">
+    <div class="upi-succ-row"><span class="upi-succ-rl">Amount Paid</span><span class="upi-succ-rv red" id="upiSuccAmt">₹499</span></div>
+    <div class="upi-succ-div"></div>
+    <div class="upi-succ-row"><span class="upi-succ-rl">UPI Ref. ID</span><span class="upi-succ-rv" id="upiTxnId">—</span></div>
+    <div class="upi-succ-div"></div>
+    <div class="upi-succ-row"><span class="upi-succ-rl">Plan Active</span><span class="upi-succ-rv green">Immediately</span></div>
+   </div>
+   <button class="upi-done-btn" onclick="upiFinish()">✓ Done — Go to Home</button>
+  </div>
+ </div>
+</div>
+
+<!-- PRICING MODAL -->
+<div class="pricing-overlay" id="pricingModal">
+  <div class="pricing-box">
+    <button class="pricing-close" onclick="closePricing()">✕</button>
+    <div class="pricing-header">
+      <h2>Choose your plan</h2>
+      <p>Stream unlimited movies, series, and anime. Cancel anytime.</p>
+    </div>
+    <div class="billing-toggle">
+      <button class="active" onclick="setBilling('monthly',this)">Monthly</button>
+      <button onclick="setBilling('annual',this)">Annual <span style="color:#e50914;font-size:11px;margin-left:4px">Save 30%</span></button>
+    </div>
+    <div class="plans-grid">
+
+      <div class="plan-card">
+        <div class="plan-name">Free</div>
+        <div class="plan-price">
+          <span class="currency">₹</span><span class="amount">0</span>
+          <span class="period">forever free</span>
+        </div>
+        <div class="plan-tagline">Explore what FILMHORIZON has to offer</div>
+        <ul class="plan-features">
+          <li>Limited titles with ads</li>
+          <li>480p SD quality</li>
+          <li>1 device at a time</li>
+          <li>Basic search & browse</li>
+        </ul>
+        <button class="plan-cta">Current plan</button>
+      </div>
+
+      <div class="plan-card">
+        <div class="plan-name">Basic</div>
+        <div class="plan-price">
+          <span class="currency">₹</span><span class="amount" id="basic-price">199</span>
+          <span class="period" id="basic-period">per month</span>
+        </div>
+        <div class="plan-tagline">Great for casual viewers</div>
+        <ul class="plan-features">
+          <li>Ad-free streaming</li>
+          <li>Full HD 1080p</li>
+          <li>1 screen at a time</li>
+          <li>Download for offline</li>
+          <li>Access to all titles</li>
+        </ul>
+        <button class="plan-cta" onclick="selectPlan('Basic')">Get Basic</button>
+      </div>
+
+      <div class="plan-card popular">
+        <div class="popular-badge">Most Popular</div>
+        <div class="plan-name">Premium</div>
+        <div class="plan-price">
+          <span class="currency">₹</span><span class="amount" id="premium-price">499</span>
+          <span class="period" id="premium-period">per month</span>
+        </div>
+        <div class="plan-tagline">Best experience for families</div>
+        <ul class="plan-features">
+          <li>Ad-free streaming</li>
+          <li>4K Ultra HD + HDR</li>
+          <li>4 screens at once</li>
+          <li>5 user profiles</li>
+          <li>Unlimited downloads</li>
+          <li>Early access to releases</li>
+        </ul>
+        <button class="plan-cta primary" onclick="selectPlan('Premium')">Get Premium</button>
+      </div>
+
+      <div class="plan-card">
+        <div class="plan-name">Students</div>
+        <div class="plan-price">
+          <span class="currency">₹</span><span class="amount" id="student-price">99</span>
+          <span class="period" id="student-period">per month</span>
+        </div>
+        <div class="plan-tagline">Verified students only</div>
+        <ul class="plan-features">
+          <li>Ad-free streaming</li>
+          <li>Full HD 1080p</li>
+          <li>1 screen at a time</li>
+          <li>Offline downloads</li>
+          <li>Access to all titles</li>
+          <li>Student ID required</li>
+        </ul>
+        <button class="plan-cta" onclick="selectPlan('Students')">Verify & Subscribe</button>
+      </div>
+
+    </div>
+    <p class="pricing-note">All prices inclusive of GST · Secure payments via Razorpay · Cancel anytime</p>
+  </div>
+</div>
+
+<!-- YouTube IFrame API -->
+<script src="https://www.youtube.com/iframe_api"></script>
+<script src="apps.js"></script>
+<script>
+(function() {
+  const id = sessionStorage.getItem('_openDetailId');
+  if (id) {
+    sessionStorage.removeItem('_openDetailId');
+    window.addEventListener('load', () => {
+      setTimeout(() => { if(typeof openDetail==='function') openDetail(parseInt(id)); }, 300);
+    });
+  }
+})();
+</script>
+</body>
+</html>
