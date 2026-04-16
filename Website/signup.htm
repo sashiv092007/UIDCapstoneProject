@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>filmHorizon | Sign In</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --red:       #e50914;
+      --red-dark:  #b0060f;
+      --red-glow:  rgba(229,9,20,0.35);
+      --green:     #4caf50;
+      --green-dim: rgba(76,175,80,0.18);
+      --bg:        #0a0a0a;
+      --surface:   rgba(0,0,0,0.78);
+      --border:    rgba(255,255,255,0.08);
+      --text:      #e8e8e8;
+      --muted:     #8a8a8a;
+      --input-bg:  rgba(255,255,255,0.06);
+      --input-focus: rgba(229,9,20,0.25);
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    /* ── CINEMATIC BACKGROUND ── */
+    .scene {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+    }
+
+    .scene::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(135deg, #0d1f0e 0%, #050d06 40%, #0a0a0a 70%, #1a0303 100%);
+    }
+
+    .scene-grid {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      grid-template-rows: repeat(4, 1fr);
+      gap: 3px;
+      opacity: 0.35;
+      transform: scale(1.08) rotate(-2deg);
+    }
+
+    .scene-cell {
+      background: linear-gradient(135deg, #1a3a1c, #0d1f0e);
+      border-radius: 2px;
+      position: relative;
+      overflow: hidden;
+    }
+    .scene-cell:nth-child(3n)   { background: linear-gradient(135deg, #2d1a0a, #1a0d05); }
+    .scene-cell:nth-child(5n)   { background: linear-gradient(135deg, #1a2e0a, #0d1800); }
+    .scene-cell:nth-child(7n)   { background: linear-gradient(135deg, #0a1a2d, #051018); }
+    .scene-cell::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 8px,
+        rgba(255,255,255,0.025) 8px,
+        rgba(255,255,255,0.025) 9px
+      );
+    }
+
+    .scene-overlay {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 50% 50%, transparent 20%, rgba(0,0,0,0.85) 100%),
+        linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, transparent 30%, transparent 60%, rgba(0,0,0,0.95) 100%),
+        linear-gradient(to right, rgba(0,0,0,0.4) 0%, transparent 50%, rgba(0,0,0,0.4) 100%);
+    }
+
+    .particles {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+    .particle {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: #4caf50;
+      border-radius: 50%;
+      animation: float-up linear infinite;
+      opacity: 0;
+    }
+    .particle:nth-child(1)  { left: 10%; animation-duration: 12s; animation-delay: 0s;    width: 3px; height: 3px; }
+    .particle:nth-child(2)  { left: 25%; animation-duration: 18s; animation-delay: 3s; }
+    .particle:nth-child(3)  { left: 40%; animation-duration: 14s; animation-delay: 6s;    background: #e50914; }
+    .particle:nth-child(4)  { left: 55%; animation-duration: 20s; animation-delay: 1s; }
+    .particle:nth-child(5)  { left: 70%; animation-duration: 16s; animation-delay: 4s;    background: #8bc34a; }
+    .particle:nth-child(6)  { left: 85%; animation-duration: 13s; animation-delay: 8s;    width: 3px; height: 3px; }
+    .particle:nth-child(7)  { left: 18%; animation-duration: 22s; animation-delay: 2s;    background: #e50914; }
+    .particle:nth-child(8)  { left: 62%; animation-duration: 17s; animation-delay: 7s; }
+    .particle:nth-child(9)  { left: 78%; animation-duration: 15s; animation-delay: 5s;    background: #4caf50; }
+    .particle:nth-child(10) { left: 33%; animation-duration: 19s; animation-delay: 9s;    background: #8bc34a; }
+
+    @keyframes float-up {
+      0%   { bottom: -10px; opacity: 0; transform: translateX(0); }
+      10%  { opacity: 0.7; }
+      90%  { opacity: 0.5; }
+      100% { bottom: 110%; opacity: 0; transform: translateX(30px); }
+    }
+
+    /* ── TOP NAV ── */
+    .top-nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 48px;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+    }
+
+    .nav-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2.2rem;
+      letter-spacing: 3px;
+      color: var(--red);
+      text-shadow: 0 0 30px var(--red-glow);
+      text-decoration: none;
+    }
+    .nav-logo span { color: #4caf50; }
+
+    /* ── LOGOUT BUTTON ── */
+    .logout-btn {
+      background: transparent;
+      border: 1.5px solid rgba(229,9,20,0.5);
+      border-radius: 4px;
+      color: var(--red);
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 7px 16px;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s, color 0.2s;
+      display: none;
+    }
+    .logout-btn:hover {
+      background: var(--red);
+      color: #fff;
+      border-color: var(--red);
+    }
+    .logout-btn.visible { display: inline-block; }
+
+    /* ── MAIN LAYOUT ── */
+    .page {
+      position: relative;
+      z-index: 10;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 100px 24px 60px;
+    }
+
+    /* ── SIGN-IN CARD ── */
+    .signin-card {
+      width: 100%;
+      max-width: 440px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 52px 52px 44px;
+      backdrop-filter: blur(20px);
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.04),
+        0 32px 80px rgba(0,0,0,0.7),
+        0 0 60px rgba(229,9,20,0.07);
+      animation: card-in 0.6s cubic-bezier(0.16,1,0.3,1) both;
+    }
+
+    @keyframes card-in {
+      from { opacity: 0; transform: translateY(24px) scale(0.98); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .card-title {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #fff;
+      letter-spacing: -0.5px;
+    }
+
+    .card-subtitle {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-bottom: 32px;
+      font-weight: 300;
+    }
+
+    /* ── FORM FIELDS ── */
+    .field-group {
+      margin-bottom: 18px;
+      position: relative;
+    }
+
+    .field-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .forgot-link {
+      color: var(--muted);
+      text-decoration: none;
+      font-weight: 400;
+      text-transform: none;
+      letter-spacing: 0;
+      font-size: 0.82rem;
+      transition: color 0.2s;
+    }
+    .forgot-link:hover { color: var(--text); text-decoration: underline; }
+
+    .field-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .field-input {
+      width: 100%;
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: #fff;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 400;
+      padding: 14px 44px 14px 16px;
+      outline: none;
+      transition: border-color 0.25s, background 0.25s, box-shadow 0.25s;
+    }
+    .field-input::placeholder { color: #555; }
+    .field-input:focus {
+      border-color: rgba(229,9,20,0.6);
+      background: var(--input-focus);
+      box-shadow: 0 0 0 3px rgba(229,9,20,0.1);
+    }
+    .field-input.error {
+      border-color: #e87c86;
+      background: rgba(232,124,134,0.08);
+    }
+
+    .toggle-pw {
+      position: absolute;
+      right: 14px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      color: var(--muted);
+      padding: 4px;
+      transition: color 0.2s;
+      line-height: 1;
+    }
+    .toggle-pw:hover { color: var(--text); }
+
+    .field-error {
+      font-size: 0.78rem;
+      color: #e87c86;
+      margin-top: 6px;
+      min-height: 18px;
+    }
+
+    /* ── REMEMBER ME ── */
+    .remember-row {
+      margin-bottom: 22px;
+    }
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      color: var(--muted);
+      user-select: none;
+    }
+    .checkbox-label input { display: none; }
+    .checkbox-custom {
+      width: 16px; height: 16px;
+      border: 1.5px solid #555;
+      border-radius: 3px;
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      transition: border-color 0.2s, background 0.2s;
+      font-size: 10px;
+    }
+    .checkbox-label input:checked ~ .checkbox-custom {
+      border-color: var(--red);
+      background: var(--red);
+      color: #fff;
+    }
+    .checkbox-label input:checked ~ .checkbox-custom::after { content: '✓'; }
+    .checkbox-label:hover .checkbox-custom { border-color: #888; }
+
+    /* ── ALERT ── */
+    .form-alert {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(232,124,134,0.12);
+      border: 1px solid rgba(232,124,134,0.3);
+      border-radius: 4px;
+      padding: 12px 14px;
+      font-size: 0.85rem;
+      color: #e87c86;
+      margin-bottom: 18px;
+    }
+    .form-alert.hidden { display: none; }
+
+    /* ── SIGN IN BUTTON ── */
+    .btn-signin {
+      width: 100%;
+      background: var(--red);
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      font-family: 'Outfit', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      padding: 16px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+      margin-bottom: 20px;
+    }
+    .btn-signin::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .btn-signin:hover {
+      background: var(--red-dark);
+      box-shadow: 0 6px 24px rgba(229,9,20,0.4);
+      transform: translateY(-1px);
+    }
+    .btn-signin:hover::before { opacity: 1; }
+    .btn-signin:active { transform: translateY(0); }
+
+    .btn-loader { display: none; }
+    .btn-loader.visible { display: inline; }
+
+    /* ── DIVIDER ── */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 18px;
+      color: #444;
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── SIGNUP PROMPT ── */
+    .signup-prompt {
+      font-size: 0.85rem;
+      color: var(--muted);
+      text-align: center;
+    }
+    .signup-link {
+      color: #fff;
+      font-weight: 500;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .signup-link:hover { color: var(--red); text-decoration: underline; }
+
+    /* ── DEMO HINT ── */
+    .demo-hint {
+      margin-top: 24px;
+      padding: 14px 16px;
+      background: var(--green-dim);
+      border: 1px solid rgba(76,175,80,0.25);
+      border-radius: 4px;
+      font-size: 0.8rem;
+      color: #9ec8a0;
+      line-height: 1.6;
+    }
+    .demo-hint strong { color: #b8e0ba; }
+    .demo-hint-label {
+      display: block;
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--green);
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    /* ── CONTENT ROW ── */
+    .content-row {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      z-index: 5;
+      padding: 0 0 20px;
+      background: linear-gradient(to top, rgba(0,0,0,0.9) 60%, transparent);
+      pointer-events: none;
+    }
+
+    .row-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 0 48px;
+      margin-bottom: 10px;
+    }
+
+    .row-cards {
+      display: flex;
+      gap: 8px;
+      padding: 0 48px;
+      overflow: hidden;
+    }
+
+    .row-card {
+      flex: 0 0 180px;
+      height: 100px;
+      border-radius: 4px;
+      background: linear-gradient(135deg, var(--c1), var(--c2));
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 10px 12px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: rgba(255,255,255,0.9);
+      position: relative;
+      overflow: hidden;
+      opacity: 0.7;
+    }
+    .row-card::before {
+      content: attr(data-emoji);
+      position: absolute;
+      top: 10px; right: 12px;
+      font-size: 1.5rem;
+      opacity: 0.6;
+    }
+    .row-card:nth-child(1) { --c1: #1a3a1c; --c2: #0d1f0e; }
+    .row-card:nth-child(2) { --c1: #2d1a0a; --c2: #150c04; }
+    .row-card:nth-child(3) { --c1: #0a2d1a; --c2: #051409; }
+    .row-card:nth-child(4) { --c1: #1a1a2d; --c2: #0d0d18; }
+    .row-card:nth-child(5) { --c1: #2d1a1a; --c2: #160d0d; }
+    .row-card:nth-child(6) { --c1: #1a2d0a; --c2: #0d1805; }
+    .row-card-title { font-size: 0.7rem; opacity: 0.8; }
+
+    /* ── SUCCESS OVERLAY ── */
+    .success-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+      background: rgba(0,0,0,0.92);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(12px);
+    }
+    .success-overlay.hidden { display: none; }
+
+    .success-card {
+      text-align: center;
+      animation: card-in 0.5s cubic-bezier(0.16,1,0.3,1) both;
+    }
+    .success-icon {
+      font-size: 4rem;
+      margin-bottom: 20px;
+      display: block;
+      animation: pulse-icon 1.2s ease-in-out infinite alternate;
+    }
+    @keyframes pulse-icon {
+      from { transform: scale(1); }
+      to   { transform: scale(1.1); }
+    }
+    .success-title {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+    .success-sub {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-bottom: 28px;
+    }
+    .success-loader {
+      width: 200px;
+      height: 3px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 99px;
+      margin: 0 auto;
+      overflow: hidden;
+    }
+    .loader-bar {
+      height: 100%;
+      background: var(--red);
+      border-radius: 99px;
+      width: 0;
+      transition: width 1.8s linear;
+    }
+
+    /* ── MODAL (shared styles) ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 500;
+      background: rgba(0,0,0,0.85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(8px);
+      padding: 24px;
+    }
+    .modal-overlay.hidden { display: none; }
+
+    .modal-card {
+      background: #141414;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 6px;
+      padding: 44px;
+      width: 100%;
+      max-width: 420px;
+      position: relative;
+      animation: card-in 0.4s cubic-bezier(0.16,1,0.3,1) both;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 16px; right: 16px;
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 1.1rem;
+      cursor: pointer;
+      width: 32px; height: 32px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 50%;
+      transition: background 0.2s, color 0.2s;
+    }
+    .modal-close:hover { background: rgba(255,255,255,0.08); color: #fff; }
+
+    .modal-title {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+    .modal-sub {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 28px;
+    }
+
+    /* ── FORGOT PASSWORD STEPS ── */
+    .fp-step { display: none; }
+    .fp-step.active { display: block; }
+
+    .fp-success-msg {
+      display: none;
+      text-align: center;
+      padding: 12px 0 4px;
+    }
+    .fp-success-msg .success-icon { font-size: 2.5rem; margin-bottom: 12px; }
+    .fp-success-msg p { color: #9ec8a0; font-size: 0.9rem; }
+
+    .btn-secondary {
+      width: 100%;
+      background: transparent;
+      border: 1.5px solid rgba(255,255,255,0.15);
+      border-radius: 4px;
+      color: var(--text);
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 500;
+      padding: 13px;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .btn-secondary:hover {
+      border-color: rgba(255,255,255,0.35);
+      background: rgba(255,255,255,0.04);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 520px) {
+      .signin-card { padding: 36px 28px 32px; }
+      .top-nav { padding: 16px 24px; }
+      .content-row { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── CINEMATIC BACKGROUND ── -->
+  <div class="scene">
+    <div class="scene-grid">
+      <div class="scene-cell"></div><div class="scene-cell"></div><div class="scene-cell"></div><div class="scene-cell"></div><div class="scene-cell"></div>
+      <div class="scene-cell"></div><div class="scene-cell"></div><div class="scene-cell"></div><div class="scene-cell"></div><div class="scene-cell"></div>
+      <div class="scene-cell"></div><div class="scene-cell"></div><div class="scene-cell"></div><div class="scene-cell"></div><div class="scene-cell"></div>
+      <div class="scene-cell"></div><div class="scene-cell"></div><div class="scene-cell"></div><div class="scene-cell"></div><div class="scene-cell"></div>
+    </div>
+    <div class="scene-overlay"></div>
+    <div class="particles">
+      <div class="particle"></div><div class="particle"></div><div class="particle"></div>
+      <div class="particle"></div><div class="particle"></div><div class="particle"></div>
+      <div class="particle"></div><div class="particle"></div><div class="particle"></div>
+      <div class="particle"></div>
+    </div>
+  </div>
+
+  <!-- ── TOP NAV ── -->
+  <nav class="top-nav">
+    <a href="index.html" class="nav-logo">film<span>H</span>orizon</a>
+    <div style="display:flex;align-items:center;gap:16px;">
+      <button class="logout-btn" onclick="window.logout()">Sign Out</button>
+    </div>
+  </nav>
+
+  <!-- ── MAIN PAGE ── -->
+  <main class="page">
+    <div class="signin-card">
+
+      <h1 class="card-title">Sign In</h1>
+      <p class="card-subtitle">You can watch your favourite shows anytime.</p>
+
+      <form id="login-form" novalidate>
+
+        <!-- Email -->
+        <div class="field-group" id="group-email">
+          <label for="email" class="field-label">Email Address</label>
+          <div class="field-wrap">
+            <input type="email" id="email" name="email" class="field-input"
+              placeholder="you@example.com" autocomplete="email" required />
+          </div>
+          <p class="field-error" id="error-email"></p>
+        </div>
+
+        <!-- Password -->
+        <div class="field-group" id="group-password">
+          <label for="password" class="field-label">
+            Password
+            <a href="#" class="forgot-link" id="forgot-link">Forgot password?</a>
+          </label>
+          <div class="field-wrap">
+            <input type="password" id="password" name="password" class="field-input"
+              placeholder="••••••••" autocomplete="current-password" required />
+            <button type="button" class="toggle-pw" id="toggle-pw" title="Show / hide password">👁</button>
+          </div>
+          <p class="field-error" id="error-password"></p>
+        </div>
+
+        <!-- Remember me -->
+        <div class="remember-row">
+          <label class="checkbox-label">
+            <input type="checkbox" id="remember-me" />
+            <span class="checkbox-custom"></span>
+            <span class="checkbox-text">Remember me for 30 days</span>
+          </label>
+        </div>
+
+        <!-- Alert -->
+        <div class="form-alert hidden" id="form-alert">
+          <span>⚠️</span>
+          <span id="alert-text"></span>
+        </div>
+
+        <!-- Submit -->
+        <button type="submit" class="btn-signin" id="btn-signin">
+          <span class="btn-text">Sign In</span>
+          <span class="btn-loader" id="btn-loader"> </span>
+        </button>
+
+        <!-- Divider -->
+        <div class="divider">or</div>
+
+
+        <!-- Signup -->
+        <p class="signup-prompt">
+          New to filmHorizon? <a href="#" class="signup-link" id="signup-link">Create a free account</a>
+        </p>
+
+      </form>
+
+      <!-- Demo hint -->
+      <div class="demo-hint">
+        <span class="demo-hint-label">🔑 Demo Access</span>
+        Email: <strong>demo@filmHorizon.com</strong><br>
+        Password: <strong>demo123</strong>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ── NETFLIX-STYLE CONTENT ROW ── -->
+  <div class="content-row">
+    <div class="row-label">Popular on filmHorizon</div>
+    <div class="row-cards">
+      <div class="row-card" data-emoji=""><span class="row-card-title">New Movies</span></div>
+      <div class="row-card" data-emoji=""><span class="row-card-title">Best sitcoms and webseries</span></div>
+      <div class="row-card" data-emoji=""><span class="row-card-title">Achievement Hub</span></div>
+      <div class="row-card" data-emoji=""><span class="row-card-title">Popular Anime and cartoons</span></div>
+      <div class="row-card" data-emoji=""><span class="row-card-title">System Management</span></div>
+      <div class="row-card" data-emoji=""><span class="row-card-title">History</span></div>
+    </div>
+  </div>
+
+  <!-- ── SUCCESS OVERLAY ── -->
+  <div class="success-overlay hidden" id="success-overlay">
+    <div class="success-card">
+      <span class="success-icon">🎬</span>
+      <h2 class="success-title">Welcome back!</h2>
+      <p class="success-sub">Redirecting you to filmHorizon…</p>
+      <div class="success-loader">
+        <div class="loader-bar" id="loader-bar"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SIGN-UP MODAL ── -->
+  <div class="modal-overlay hidden" id="signup-modal">
+    <div class="modal-card">
+      <button class="modal-close" id="modal-close">✕</button>
+      <h2 class="modal-title">Create Account</h2>
+      <p class="modal-sub">Fill in your details to get started</p>
+
+      <form id="signup-form" novalidate>
+        <div class="field-group">
+          <label class="field-label">Full Name</label>
+          <div class="field-wrap">
+            <input type="text" id="su-name" class="field-input" placeholder="User Name" required />
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Email</label>
+          <div class="field-wrap">
+            <input type="email" id="su-email" class="field-input" placeholder="you@example.com" required />
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-label">Password</label>
+          <div class="field-wrap">
+            <input type="password" id="su-pw" class="field-input" placeholder="Min 6 characters" required />
+          </div>
+        </div>
+        <div class="form-alert hidden" id="signup-alert">
+          <span>⚠️</span>
+          <span id="signup-alert-text"></span>
+        </div>
+        <button type="submit" class="btn-signin" style="margin-top:8px">Create Account</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ── FORGOT PASSWORD MODAL ── -->
+  <div class="modal-overlay hidden" id="forgot-modal">
+    <div class="modal-card">
+      <button class="modal-close" id="forgot-modal-close">✕</button>
+
+      <!-- Step 1: Enter email -->
+      <div class="fp-step active" id="fp-step-1">
+        <h2 class="modal-title">Forgot Password?</h2>
+        <p class="modal-sub">Enter your registered email and we'll send a reset code.</p>
+        <div class="field-group">
+          <label class="field-label">Email Address</label>
+          <div class="field-wrap">
+            <input type="email" id="fp-email" class="field-input" placeholder="you@example.com" />
+          </div>
+        </div>
+        <div class="form-alert hidden" id="fp-alert-1">
+          <span>⚠️</span>
+          <span id="fp-alert-1-text"></span>
+        </div>
+        <button class="btn-signin" id="fp-send-btn" style="margin-bottom:0">Send Reset Code</button>
+        <button type="button" class="btn-secondary" id="fp-back-to-login">← Back to Sign In</button>
+      </div>
+
+      <!-- Step 2: Enter code + new password -->
+      <div class="fp-step" id="fp-step-2">
+        <h2 class="modal-title">Reset Password</h2>
+        <p class="modal-sub" id="fp-step2-sub">Enter the code sent to your email and choose a new password.</p>
+        <div class="field-group">
+          <label class="field-label">Reset Code</label>
+          <div class="field-wrap">
+            <input type="text" id="fp-code-input" class="field-input" placeholder="e.g. 123456" maxlength="6" />
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-label">New Password</label>
+          <div class="field-wrap">
+            <input type="password" id="fp-new-pw" class="field-input" placeholder="Min 6 characters" />
+            <button type="button" class="toggle-pw" id="fp-toggle-pw">👁</button>
+          </div>
+        </div>
+        <div class="form-alert hidden" id="fp-alert-2">
+          <span>⚠️</span>
+          <span id="fp-alert-2-text"></span>
+        </div>
+        <button class="btn-signin" id="fp-reset-btn" style="margin-bottom:0">Reset Password</button>
+        <button type="button" class="btn-secondary" id="fp-back-to-step1">← Change Email</button>
+      </div>
+
+      <!-- Step 3: Success -->
+      <div class="fp-step" id="fp-step-3">
+        <div class="fp-success-msg" style="display:block; text-align:center; padding: 16px 0;">
+          <div class="success-icon" style="font-size:3rem; margin-bottom:16px;">✅</div>
+          <h2 class="modal-title" style="margin-bottom:8px;">Password Reset!</h2>
+          <p style="color:var(--muted); font-size:0.9rem; margin-bottom:28px;">Your password has been updated. You can now sign in with your new password.</p>
+          <button class="btn-signin" id="fp-done-btn" style="margin-bottom:0">Go to Sign In</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+
+  /* ═══════════════════════════════════════════
+     STORAGE HELPERS
+  ═══════════════════════════════════════════ */
+  function getUsers() {
+    try { return JSON.parse(localStorage.getItem('filmHorizon_users') || '[]') || []; }
+    catch(e) { return []; }
+  }
+
+  function saveUsers(arr) {
+    localStorage.setItem('filmHorizon_users', JSON.stringify(arr));
+  }
+
+  /* ── Seed demo user if DB is empty ── */
+  (function seedDemoUser() {
+    const users = getUsers();
+    if (!users.find(u => u.email === 'demo@filmHorizon.com')) {
+      users.push({
+        id: 'u_demo',
+        name: 'Demo User',
+        email: 'demo@filmHorizon.com',
+        password: 'demo123',
+        plan: 'free',
+        joinedAt: new Date().toISOString(),
+        profile: { planLabel: 'FREE PLAN', planSince: new Date().toISOString() }
+      });
+      saveUsers(users);
+    }
+  })();
+
+  /* ═══════════════════════════════════════════
+     SESSION HELPERS
+  ═══════════════════════════════════════════ */
+  function setSession(email) {
+    const users = getUsers();
+    const user  = users.find(u => u.email === email);
+    const name  = user ? user.name : email.split('@')[0];
+    const plan  = user?.plan || 'free';
+    const uid   = user?.id || ('u_' + Date.now());
+
+    /* ── Ensure user has an id (legacy users without one) ── */
+    if (user && !user.id) {
+      user.id = uid;
+      const allUsers = getUsers();
+      const idx = allUsers.findIndex(u => u.email === email);
+      if (idx !== -1) { allUsers[idx].id = uid; saveUsers(allUsers); }
+    }
+
+    /* ── Init profile on first sign-in ── */
+    const profileKey = 'filmHorizon_profile_' + uid;
+    let prof = {};
+    try { prof = JSON.parse(localStorage.getItem(profileKey) || localStorage.getItem('filmHorizon_profile') || '{}'); } catch(e) {}
+    if (!prof.planLabel) {
+      prof.planLabel = 'FREE PLAN';
+      prof.planSince = prof.planSince || (user?.joinedAt || new Date().toISOString());
+    }
+    localStorage.setItem(profileKey, JSON.stringify(prof));
+    localStorage.setItem('filmHorizon_profile', JSON.stringify(prof));
+
+    sessionStorage.setItem('filmHorizon_user', JSON.stringify({
+      id:    uid,
+      name:  name,
+      email: email,
+      plan:  plan
+    }));
+    document.querySelectorAll('.logout-btn').forEach(b => b.classList.add('visible'));
+  }
+
+  function clearSession() {
+    sessionStorage.removeItem('filmHorizon_user');
+    document.querySelectorAll('.logout-btn').forEach(b => b.classList.remove('visible'));
+  }
+
+  function isLoggedIn() {
+    return !!sessionStorage.getItem('filmHorizon_user');
+  }
+
+  /* ═══════════════════════════════════════════
+     LOGOUT
+  ═══════════════════════════════════════════ */
+  window.logout = function () {
+    clearSession();
+    window.location.reload();
+  };
+
+  /* ── If already logged in, go straight to website ── */
+  if (isLoggedIn()) {
+    window.location.href = 'index.html';
+    return;
+  }
+
+  /* ── Seed demo account so demo credentials always work ── */
+  (function seedDemo() {
+    const users = getUsers();
+    if (!users.find(u => u.email === 'demo@filmHorizon.com')) {
+      users.push({ id: 'u_demo_001', name: 'Demo User', email: 'demo@filmHorizon.com', password: 'demo123', plan: 'free', joinedAt: new Date().toISOString(), profile: { planLabel: 'FREE PLAN', planSince: new Date().toISOString() } });
+      saveUsers(users);
+    }
+  })();
+
+  /* ═══════════════════════════════════════════
+     PASSWORD TOGGLE
+  ═══════════════════════════════════════════ */
+  const togglePw = document.getElementById('toggle-pw');
+  if (togglePw) {
+    togglePw.addEventListener('click', () => {
+      const pw = document.getElementById('password');
+      if (pw) pw.type = pw.type === 'password' ? 'text' : 'password';
+    });
+  }
+
+  /* ═══════════════════════════════════════════
+     LOGIN
+  ═══════════════════════════════════════════ */
+  const loginForm = document.getElementById('login-form');
+  if (loginForm) {
+    loginForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const email    = document.getElementById('email')?.value.trim();
+      const password = document.getElementById('password')?.value;
+      const alertEl  = document.getElementById('form-alert');
+      const alertTxt = document.getElementById('alert-text');
+
+      alertEl.classList.add('hidden');
+
+      const emailPattern = /^\S+@\S+\.\S+$/;
+
+      if (!email || !password) {
+        alertTxt.textContent = 'Please fill all fields.';
+        alertEl.classList.remove('hidden');
+        return;
+      }
+      if (!emailPattern.test(email)) {
+        alertTxt.textContent = 'Enter a valid email address.';
+        alertEl.classList.remove('hidden');
+        return;
+      }
+      if (password.length < 6) {
+        alertTxt.textContent = 'Password must be at least 6 characters.';
+        alertEl.classList.remove('hidden');
+        return;
+      }
+
+      /* ── Check credentials against stored users ── */
+      const users = getUsers();
+      const match = users.find(u => u.email === email && u.password === password);
+      if (!match) {
+        alertTxt.textContent = 'Create an account before login.';
+        alertEl.classList.remove('hidden');
+        return;
+      }
+
+      /* ── Success ── */
+      setSession(email);
+
+      const overlay = document.getElementById('success-overlay');
+      if (overlay) overlay.classList.remove('hidden');
+
+      setTimeout(() => {
+        const bar = document.getElementById('loader-bar');
+        if (bar) bar.style.width = '100%';
+      }, 50);
+
+      setTimeout(() => {
+        window.location.href = 'index.html';
+      }, 1800);
+    });
+  }
+
+  /* ═══════════════════════════════════════════
+     SIGN-UP MODAL
+  ═══════════════════════════════════════════ */
+  const signupLink = document.getElementById('signup-link');
+  if (signupLink) {
+    signupLink.addEventListener('click', e => {
+      e.preventDefault();
+      document.getElementById('signup-modal')?.classList.remove('hidden');
+    });
+  }
+
+  const modalClose = document.getElementById('modal-close');
+  if (modalClose) {
+    modalClose.addEventListener('click', () => {
+      document.getElementById('signup-modal')?.classList.add('hidden');
+    });
+  }
+
+  const signupModal = document.getElementById('signup-modal');
+  if (signupModal) {
+    signupModal.addEventListener('click', e => {
+      if (e.target === e.currentTarget) e.currentTarget.classList.add('hidden');
+    });
+  }
+
+  const signupForm = document.getElementById('signup-form');
+  if (signupForm) {
+    signupForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const name  = document.getElementById('su-name').value.trim();
+      const email = document.getElementById('su-email').value.trim();
+      const pw    = document.getElementById('su-pw').value;
+      const alertEl  = document.getElementById('signup-alert');
+      const alertTxt = document.getElementById('signup-alert-text');
+
+      alertEl.classList.add('hidden');
+      alertEl.style.color = '';
+
+      if (!name || !email || pw.length < 6) {
+        alertTxt.textContent = 'Fill all fields. Password must be ≥ 6 characters.';
+        alertEl.classList.remove('hidden');
+        return;
+      }
+
+      const emailPattern = /^\S+@\S+\.\S+$/;
+      if (!emailPattern.test(email)) {
+        alertTxt.textContent = 'Enter a valid email address.';
+        alertEl.classList.remove('hidden');
+        return;
+      }
+
+      const users = getUsers();
+      if (users.find(u => u.email === email)) {
+        alertTxt.textContent = 'An account with this email already exists. Please sign in.';
+        alertEl.classList.remove('hidden');
+        return;
+      }
+
+      /* ── Save new user ── */
+      const newUserId = 'u_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
+      users.push({ id: newUserId, name, email, password: pw, plan: 'free', joinedAt: new Date().toISOString(), profile: { planLabel: 'FREE PLAN', planSince: new Date().toISOString() } });
+      saveUsers(users);
+
+      /* ── Show success, pre-fill email, close modal ── */
+      alertEl.style.color = 'lightgreen';
+      alertTxt.textContent = 'Account created! Please sign in with your new credentials.';
+      alertEl.classList.remove('hidden');
+
+      document.getElementById('email').value = email;
+
+      setTimeout(() => {
+        document.getElementById('signup-modal').classList.add('hidden');
+      }, 1500);
+    });
+  }
+
+  /* ═══════════════════════════════════════════
+     FORGOT PASSWORD
+  ═══════════════════════════════════════════ */
+  let _fpCode  = '';
+  let _fpEmail = '';
+
+  function showFPStep(n) {
+    document.querySelectorAll('.fp-step').forEach(s => s.classList.remove('active'));
+    document.getElementById('fp-step-' + n)?.classList.add('active');
+  }
+
+  const forgotLink = document.getElementById('forgot-link');
+  if (forgotLink) {
+    forgotLink.addEventListener('click', e => {
+      e.preventDefault();
+      showFPStep(1);
+      document.getElementById('fp-email').value = document.getElementById('email')?.value || '';
+      document.getElementById('fp-alert-1')?.classList.add('hidden');
+      document.getElementById('forgot-modal')?.classList.remove('hidden');
+    });
+  }
+
+  document.getElementById('forgot-modal-close')?.addEventListener('click', () => {
+    document.getElementById('forgot-modal')?.classList.add('hidden');
+  });
+
+  document.getElementById('fp-back-to-login')?.addEventListener('click', () => {
+    document.getElementById('forgot-modal')?.classList.add('hidden');
+  });
+
+  document.getElementById('fp-back-to-step1')?.addEventListener('click', () => {
+    showFPStep(1);
+  });
+
+  const fpSend = document.getElementById('fp-send-btn');
+  if (fpSend) {
+    fpSend.addEventListener('click', () => {
+      const email    = document.getElementById('fp-email').value.trim();
+      const alertEl  = document.getElementById('fp-alert-1');
+      const alertTxt = document.getElementById('fp-alert-1-text');
+      const emailPat = /^\S+@\S+\.\S+$/;
+
+      alertEl.classList.add('hidden');
+      alertEl.style.color = '';
+
+      if (!email || !emailPat.test(email)) {
+        alertTxt.textContent = 'Please enter a valid email address.';
+        alertEl.classList.remove('hidden');
+        return;
+      }
+
+      const users = getUsers();
+      if (!users.find(u => u.email === email)) {
+        alertTxt.textContent = 'No account found with that email.';
+        alertEl.classList.remove('hidden');
+        return;
+      }
+
+      _fpCode  = String(Math.floor(100000 + Math.random() * 900000));
+      _fpEmail = email;
+
+      /* Show code in alert as a simulation (no real email sending) */
+      alertEl.style.color = '#9ec8a0';
+      alertTxt.textContent = 'Code sent! (Simulation — your code is: ' + _fpCode + ')';
+      alertEl.classList.remove('hidden');
+
+      document.getElementById('fp-step2-sub').textContent =
+        'Enter the code sent to ' + email + ' and choose a new password.';
+
+      setTimeout(() => showFPStep(2), 1500);
+    });
+  }
+
+  const fpReset = document.getElementById('fp-reset-btn');
+  if (fpReset) {
+    fpReset.addEventListener('click', () => {
+      const code     = document.getElementById('fp-code-input').value.trim();
+      const newPw    = document.getElementById('fp-new-pw').value;
+      const alertEl  = document.getElementById('fp-alert-2');
+      const alertTxt = document.getElementById('fp-alert-2-text');
+
+      alertEl.classList.add('hidden');
+      alertEl.style.color = '';
+
+      if (!code) {
+        alertTxt.textContent = 'Please enter the reset code.';
+        alertEl.classList.remove('hidden');
+        return;
+      }
+      if (code !== _fpCode) {
+        alertTxt.textContent = 'Invalid reset code.';
+        alertEl.classList.remove('hidden');
+        return;
+      }
+      if (newPw.length < 6) {
+        alertTxt.textContent = 'Password must be at least 6 characters.';
+        alertEl.classList.remove('hidden');
+        return;
+      }
+
+      /* Update password in storage */
+      const users = getUsers();
+      const idx   = users.findIndex(u => u.email === _fpEmail);
+      if (idx !== -1) {
+        users[idx].password = newPw;
+        saveUsers(users);
+      }
+
+      showFPStep(3);
+    });
+  }
+
+  document.getElementById('fp-done-btn')?.addEventListener('click', () => {
+    document.getElementById('forgot-modal')?.classList.add('hidden');
+    showFPStep(1);
+  });
+
+  /* ═══════════════════════════════════════════
+     PASSWORD TOGGLE — forgot password new-pw field
+  ═══════════════════════════════════════════ */
+  const fpTogglePw = document.getElementById('fp-toggle-pw');
+  if (fpTogglePw) {
+    fpTogglePw.addEventListener('click', () => {
+      const pw = document.getElementById('fp-new-pw');
+      if (!pw) return;
+      const isText = pw.type === 'text';
+      pw.type = isText ? 'password' : 'text';
+      fpTogglePw.textContent = isText ? '👁' : '🙈';
+    });
+  }
+
+  /* ═══════════════════════════════════════════
+     REMEMBER ME — restore saved email on load
+  ═══════════════════════════════════════════ */
+  (function restoreRememberMe() {
+    const saved = localStorage.getItem('filmHorizon_remember_email');
+    if (saved) {
+      const emailEl = document.getElementById('email');
+      const cbEl    = document.getElementById('remember-me');
+      if (emailEl) emailEl.value = saved;
+      if (cbEl)    cbEl.checked = true;
+    }
+  })();
+
+  /* Save email when remember-me is checked on submit */
+  document.getElementById('login-form')?.addEventListener('submit', () => {
+    const cb    = document.getElementById('remember-me');
+    const email = document.getElementById('email')?.value.trim();
+    if (cb && cb.checked && email) {
+      localStorage.setItem('filmHorizon_remember_email', email);
+    } else {
+      localStorage.removeItem('filmHorizon_remember_email');
+    }
+  });
+
+});
+</script>
+</body>
+</html>

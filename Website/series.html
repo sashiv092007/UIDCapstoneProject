@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FILMHORIZON — Series</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="movies.css" />
+</head>
+<body class="dark">
+  <div class="noise"></div>
+<!-- ═══════════════════════════════════════
+       NAVBAR
+  ═══════════════════════════════════════ -->
+  <nav class="navbar" id="navbar">
+    <div class="navbar-inner">
+      <a href="website.html" class="logo">FILMHORIZON</a>
+      <nav class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="movie.html">Movies</a>
+        <a href="series.html" class="active">Series</a>
+        <a href="anime.html">Anime</a>
+        <a href="tvshows.html">TV Shows</a>
+      </nav>
+      <div class="nav-right">
+        <div class="search-wrap">
+          <input type="text" id="searchInput" placeholder="Search series…" autocomplete="off" />
+          <button id="searchBtn"><i class="fas fa-search"></i></button>
+        </div>
+        <!-- Watchlist dropdown -->
+        <div class="watchlist-wrap" id="watchlistWrap">
+          <button class="watchlist-btn" id="watchlistToggle" onclick="toggleWatchlist(event)" title="Watchlist">
+            <i class="fas fa-bookmark"></i>
+            <span class="watchlist-count" id="watchlistCount" style="display:none">0</span>
+          </button>
+          <div class="watchlist-dropdown" id="watchlistDropdown">
+            <div class="wl-header">
+              <span class="wl-title"><i class="fas fa-bookmark"></i> Watchlist</span>
+              <span class="wl-count-label" id="wlCountLabel">0 saved</span>
+            </div>
+            <div class="wl-empty" id="wlEmpty">
+              <i class="fas fa-bookmark" style="font-size:2rem;color:var(--muted);margin-bottom:10px"></i>
+              <p>No titles saved yet.</p>
+              <small>Click <strong>+</strong> on any movie to add it here.</small>
+            </div>
+            <div class="wl-list" id="wlList"></div>
+          </div>
+        </div>
+        <button class="theme-toggle" id="themeToggle"><i class="fas fa-moon"></i></button>
+        <!-- Profile -->
+        <div class="profile-btn" onclick="openProfile()" title="View Profile">
+          <div class="profile-avatar">U</div>
+          <div style="display:flex;flex-direction:column;text-align:left;">
+            <span class="profile-name">User</span>
+            <small id="userPlanDisplay" style="font-size:10px;color:#7070a0;font-weight:bold;">FREE PLAN</small>
+          </div>
+          <i class="fas fa-chevron-down" style="font-size:.62rem;color:var(--muted);margin-left:2px"></i>
+        </div>
+        <button class="logout-btn" onclick="showToast('Logged out','fa-sign-out-alt')">Logout</button>
+      </div>
+    </div>
+  </nav>
+
+<!-- ═══════════════════════════════════════
+       PAGE HERO
+  ═══════════════════════════════════════ -->
+  <header class="page-hero">
+    <div class="page-hero-bg"></div>
+    <div class="page-hero-content">
+      <p class="page-hero-eyebrow"><i class="fas fa-tv"></i> &nbsp;Browse</p>
+      <h1 class="page-hero-title">Series</h1>
+      <p class="page-hero-sub">Binge-worthy drama, thrillers, and everything in between.</p>
+    </div>
+    <div class="page-hero-stats">
+      <div class="stat"><span class="stat-num" id="totalCount">0</span><span class="stat-label">Titles</span></div>
+      <div class="stat"><span class="stat-num" id="genreCount">0</span><span class="stat-label">Genres</span></div>
+      <div class="stat"><span class="stat-num" id="yearRange">—</span><span class="stat-label">Years</span></div>
+    </div>
+  </header>
+
+<!-- ═══════════════════════════════════════
+       CONTROLS BAR
+  ═══════════════════════════════════════ -->
+  <div class="controls-bar">
+    <div class="genre-scroll" id="genreScroll">
+      <button class="genre-pill active" data-genre="All">All</button>
+      <button class="genre-pill" data-genre="Drama">Drama</button>
+      <button class="genre-pill" data-genre="Thriller">Thriller</button>
+      <button class="genre-pill" data-genre="Crime">Crime</button>
+      <button class="genre-pill" data-genre="Sci-Fi">Sci-Fi</button>
+      <button class="genre-pill" data-genre="Comedy">Comedy</button>
+      <button class="genre-pill" data-genre="Horror">Horror</button>
+      <button class="genre-pill" data-genre="Fantasy">Fantasy</button>
+      <button class="genre-pill" data-genre="Mystery">Mystery</button>
+      <button class="genre-pill" data-genre="Biography">Biography</button>
+    </div>
+    <div class="view-controls">
+      <label class="sort-wrap">
+        <span>Sort</span>
+        <select id="sortSelect">
+          <option value="rating">Top Rated</option>
+          <option value="year-desc">Newest First</option>
+          <option value="year-asc">Oldest First</option>
+          <option value="title">A – Z</option>
+          <option value="title-z">Z – A</option>
+        </select>
+      </label>
+      <div class="view-btns">
+        <button class="view-btn active" id="gridViewBtn"><i class="fas fa-th"></i></button>
+        <button class="view-btn" id="listViewBtn"><i class="fas fa-list"></i></button>
+      </div>
+    </div>
+  </div>
+
+ <!-- ═══════════════════════════════════════
+       SPOTLIGHT
+  ═══════════════════════════════════════ -->
+  <section class="spotlight-section">
+    <div class="spotlight-label"><i class="fas fa-bolt"></i> Editor's Pick</div>
+    <div class="spotlight-card">
+      <div class="spotlight-img-wrap">
+        <img id="spotlightImg" src="" alt="" />
+        <div class="spotlight-img-fade"></div>
+      </div>
+      <div class="spotlight-info">
+        <div class="spotlight-genres" id="spotlightGenres"></div>
+        <h2 class="spotlight-title" id="spotlightTitle"></h2>
+        <div class="spotlight-meta" id="spotlightMeta"></div>
+        <p class="spotlight-desc" id="spotlightDesc"></p>
+        <div class="spotlight-actions">
+          <button class="btn-primary" id="spotlightPlay"><i class="fas fa-play"></i> Watch Trailer</button>
+          <button class="btn-secondary" onclick="showToast('Added to My List ✓','fa-check')"><i class="fas fa-plus"></i> My List</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="results-info">
+    <span id="resultsCount">Showing 0 series</span>
+    <button class="clear-filters-btn" id="clearFilters" style="display:none" onclick="clearAllFilters()">
+      <i class="fas fa-times"></i> Clear filters
+    </button>
+  </div>
+
+  <main class="movies-grid" id="moviesGrid"></main>
+  <div class="empty-state" id="emptyState" style="display:none">
+    <i class="fas fa-tv"></i>
+    <h3>No series found</h3>
+    <p>Try a different genre or search term</p>
+    <button class="btn-primary" onclick="clearAllFilters()">Show all series</button>
+  </div>
+  <div class="load-more-wrap" id="loadMoreWrap">
+    <button class="load-more-btn" onclick="loadMore()"><i class="fas fa-plus"></i> Load More</button>
+  </div>
+
+<!-- ═══════════════════════════════════════
+       UPGRADE MODAL (free-user trailer limit)
+  ═══════════════════════════════════════ -->
+  <div class="upgrade-overlay" id="upgradeModal">
+    <div class="upgrade-box">
+      <button class="upgrade-close" onclick="closeUpgradeModal()"><i class="fas fa-times"></i></button>
+      <div class="upgrade-icon"><i class="fas fa-lock"></i></div>
+      <h2 class="upgrade-title">You've reached your free limit</h2>
+      <p class="upgrade-sub">
+        Free users can watch <strong>2 trailers</strong> per session.<br>
+        Upgrade to enjoy unlimited trailers, ad-free streaming, and more.
+      </p>
+      <div class="upgrade-actions">
+        <button class="upgrade-btn-primary" onclick="closeUpgradeModal();window.location.href='website.html'">
+          <i class="fas fa-bolt"></i> Upgrade Plan
+        </button>
+        <button class="upgrade-btn-secondary" onclick="closeUpgradeModal()">Maybe Later</button>
+      </div>
+      <p class="upgrade-note">✓ Cancel anytime &nbsp;·&nbsp; ✓ Instant access &nbsp;·&nbsp; ✓ Starting ₹99/mo</p>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast-wrap" id="toastWrap"></div>
+
+  <script src="series.js"></script>
+  <script>
+    /* Auto-open detail if redirected from profile page */
+    (function () {
+      const id = sessionStorage.getItem('_openDetailId');
+      if (id) {
+        sessionStorage.removeItem('_openDetailId');
+        window.addEventListener('load', () => {
+          setTimeout(() => { if (typeof openDetail === 'function') openDetail(parseInt(id)); }, 300);
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

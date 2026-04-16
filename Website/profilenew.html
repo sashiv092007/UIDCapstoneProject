@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FILMHORIZON — Profile</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="webstyles.css">
+  <style>
+    body { background: #0a0a0f; color: #e8e8f0; font-family: 'DM Sans', sans-serif; min-height: 100vh; }
+
+    /* ─── NAVBAR ─── */
+    .prof-nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
+      background: rgba(10,10,15,.95); backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      display: flex; align-items: center; gap: 16px;
+      padding: 0 24px; height: 60px;
+    }
+    .prof-nav-back {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(255,255,255,.08); border: none;
+      color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; transition: background .2s;
+    }
+    .prof-nav-back:hover { background: rgba(255,255,255,.16); }
+    .prof-nav-logo { font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; color: #fff; letter-spacing: 2px; }
+    .prof-nav-logo span { color: #e50914; }
+
+    /* ─── HERO BANNER ─── */
+    .prof-hero {
+      background: linear-gradient(135deg, #1a0a12 0%, #0a0a1a 60%, #0d0d0f 100%);
+      padding: 80px 0 0;
+      position: relative; overflow: hidden;
+    }
+    .prof-hero::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse 60% 80% at 50% 0%, rgba(229,9,20,.08), transparent);
+    }
+    .prof-inner { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+    /* ─── AVATAR ROW ─── */
+    .prof-avatar-row {
+      display: flex; align-items: flex-end; gap: 28px;
+      padding-bottom: 24px; position: relative; z-index: 2;
+    }
+    .prof-avatar-big {
+      width: 100px; height: 100px; border-radius: 50%;
+      background: linear-gradient(135deg, #e50914, #c0000a);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Syne', sans-serif; font-size: 2.8rem; font-weight: 800; color: #fff;
+      border: 4px solid #0a0a0f; box-shadow: 0 8px 32px rgba(229,9,20,.4); flex-shrink: 0;
+    }
+    .prof-name-block { flex: 1; }
+    .prof-name { font-family: 'Bebas Neue', sans-serif; font-size: 2.4rem; color: #fff; line-height: 1; margin-bottom: 4px; }
+    .prof-email { font-size: .82rem; color: rgba(255,255,255,.4); margin-bottom: 8px; }
+    .prof-plan-badge {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 5px 14px; border-radius: 99px;
+      font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+    }
+    .prof-plan-badge.free  { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12); color: #888; }
+    .prof-plan-badge.basic { background: rgba(79,195,247,.1);   border: 1px solid rgba(79,195,247,.3);  color: #4fc3f7; }
+    .prof-plan-badge.paid  { background: rgba(245,197,24,.1);   border: 1px solid rgba(245,197,24,.3);  color: #f5c518; }
+    .prof-plan-badge.students { background: rgba(129,199,132,.1); border: 1px solid rgba(129,199,132,.3); color: #81c784; }
+
+    /* ─── STATS ROW ─── */
+    .prof-stats {
+      display: flex; gap: 0;
+      border-top: 1px solid rgba(255,255,255,.06); position: relative; z-index: 2;
+    }
+    .prof-stat { flex: 1; padding: 18px 20px; text-align: center; border-right: 1px solid rgba(255,255,255,.06); }
+    .prof-stat:last-child { border-right: none; }
+    .prof-stat-val { font-family: 'Syne', sans-serif; font-size: 1.6rem; font-weight: 800; color: #fff; }
+    .prof-stat-lbl { font-size: .72rem; color: rgba(255,255,255,.4); text-transform: uppercase; letter-spacing: .08em; margin-top: 2px; }
+
+    /* ─── TABS ─── */
+    .prof-tabs {
+      display: flex; gap: 0; background: #0d0d0f;
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .prof-tab {
+      padding: 16px 24px; background: none; border: none;
+      color: rgba(255,255,255,.4); font-family: 'DM Sans', sans-serif;
+      font-size: .85rem; font-weight: 500; cursor: pointer;
+      position: relative; transition: color .2s;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .prof-tab.active { color: #fff; }
+    .prof-tab.active::after {
+      content: ''; position: absolute; bottom: 0; left: 16px; right: 16px;
+      height: 2px; background: #e50914; border-radius: 2px 2px 0 0;
+    }
+    .prof-tab:hover { color: rgba(255,255,255,.7); }
+
+    /* ─── SECTIONS ─── */
+    .prof-section { display: none; padding: 32px 0 60px; }
+    .prof-section.active { display: block; }
+
+    .section-heading {
+      font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; color: #fff;
+      margin-bottom: 20px; display: flex; align-items: center; gap: 10px;
+    }
+    .section-heading::before { content: ''; width: 3px; height: 1.2em; background: #e50914; border-radius: 2px; }
+
+    /* ─── GRID ─── */
+    .prof-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 16px;
+    }
+    .prof-card {
+      cursor: pointer; position: relative; border-radius: 10px; overflow: hidden;
+      background: #111118; transition: transform .2s, box-shadow .2s;
+    }
+    .prof-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,.6); }
+    .prof-card img { width: 100%; aspect-ratio: 2/3; object-fit: cover; display: block; }
+    .prof-card-info { padding: 8px 10px 10px; }
+    .prof-card-title { font-size: .76rem; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .prof-card-meta { font-size: .68rem; color: rgba(255,255,255,.4); margin-top: 2px; }
+    .prof-card-play {
+      position: absolute; inset: 0 0 auto 0; height: calc(100% - 58px);
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(0,0,0,0); transition: background .2s;
+    }
+    .prof-card:hover .prof-card-play { background: rgba(0,0,0,.5); }
+    .prof-card-play i { font-size: 1.8rem; color: #fff; opacity: 0; transition: opacity .2s; }
+    .prof-card:hover .prof-card-play i { opacity: 1; }
+    .prof-card-badge {
+      position: absolute; top: 7px; left: 7px;
+      font-size: .6rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+      background: rgba(229,9,20,.9); color: #fff; padding: 2px 7px; border-radius: 4px;
+    }
+    .prof-card-remove {
+      position: absolute; top: 7px; right: 7px;
+      width: 26px; height: 26px; border-radius: 50%;
+      background: rgba(0,0,0,.7); border: 1px solid rgba(255,255,255,.2);
+      color: #fff; font-size: .7rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; transition: opacity .2s, background .2s;
+    }
+    .prof-card:hover .prof-card-remove { opacity: 1; }
+    .prof-card-remove:hover { background: #e50914; border-color: #e50914; }
+
+    /* ─── EMPTY STATE ─── */
+    .empty-state { text-align: center; padding: 60px 20px; color: rgba(255,255,255,.3); }
+    .empty-state i { font-size: 2.5rem; margin-bottom: 16px; display: block; color: rgba(255,255,255,.1); }
+    .empty-state h3 { font-size: 1rem; color: rgba(255,255,255,.5); margin-bottom: 8px; }
+    .empty-state p { font-size: .85rem; line-height: 1.6; }
+    .empty-state a { color: #e50914; cursor: pointer; text-decoration: none; }
+    .empty-state a:hover { text-decoration: underline; }
+
+    /* ─── SUBSCRIPTION CARD ─── */
+    .plan-info-card {
+      background: #111118; border: 1px solid rgba(255,255,255,.07);
+      border-radius: 16px; padding: 28px; max-width: 520px;
+    }
+    .plan-info-name { font-family: 'Syne', sans-serif; font-size: 1.8rem; font-weight: 800; color: #fff; margin-bottom: 6px; }
+    .plan-info-since { font-size: .8rem; color: rgba(255,255,255,.4); margin-bottom: 20px; }
+    .plan-info-rows { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
+    .plan-info-row { display: flex; justify-content: space-between; align-items: center; font-size: .85rem; }
+    .plan-info-row-lbl { color: rgba(255,255,255,.4); }
+    .plan-info-row-val { color: #fff; font-weight: 600; }
+    .plan-info-row-val.green { color: #2ecc71; }
+    .plan-info-row-val.gold  { color: #f5c518; }
+    .plan-info-row-val.blue  { color: #4fc3f7; }
+    .plan-divider { height: 1px; background: rgba(255,255,255,.06); margin: 4px 0; }
+    .plan-upgrade-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: #e50914; color: #fff; border: none;
+      padding: 12px 24px; border-radius: 99px;
+      font-family: 'DM Sans', sans-serif; font-size: .85rem; font-weight: 700;
+      cursor: pointer; transition: background .2s, transform .15s;
+    }
+    .plan-upgrade-btn:hover { background: #c0000a; transform: translateY(-1px); }
+    .plan-manage-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(46,204,113,.12); color: #2ecc71;
+      border: 1px solid rgba(46,204,113,.3);
+      padding: 12px 24px; border-radius: 99px;
+      font-family: 'DM Sans', sans-serif; font-size: .85rem; font-weight: 700;
+      cursor: pointer; transition: background .2s;
+    }
+    .plan-manage-btn:hover { background: rgba(46,204,113,.22); }
+
+    /* ─── TXN TABLE ─── */
+    .txn-table { width: 100%; border-collapse: collapse; margin-top: 24px; }
+    .txn-table th {
+      text-align: left; font-size: .72rem; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; color: rgba(255,255,255,.3);
+      padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,.06);
+    }
+    .txn-table td { padding: 14px; font-size: .84rem; color: rgba(255,255,255,.75); border-bottom: 1px solid rgba(255,255,255,.04); }
+    .txn-table tr:last-child td { border-bottom: none; }
+    .txn-badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 99px; font-size: .7rem; font-weight: 700; }
+    .txn-badge.success { background: rgba(46,204,113,.1); border: 1px solid rgba(46,204,113,.25); color: #2ecc71; }
+
+    /* ─── TOAST ─── */
+    .toast-wrap { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 99999; display: flex; flex-direction: column; gap: 8px; align-items: center; pointer-events: none; }
+    .toast { background: #1e1e2e; border: 1px solid rgba(255,255,255,.1); border-radius: 99px; padding: 10px 20px; font-size: .84rem; color: #fff; display: flex; align-items: center; gap: 8px; opacity: 0; transform: translateY(12px); transition: opacity .3s, transform .3s; white-space: nowrap; }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 600px) {
+      .prof-avatar-row { flex-direction: column; align-items: center; text-align: center; gap: 16px; }
+      .prof-stats { flex-wrap: wrap; }
+      .prof-stat { min-width: 50%; border-right: none; border-bottom: 1px solid rgba(255,255,255,.06); }
+      .prof-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
+    }
+  </style>
+</head>
+<body class="dark">
+
+<!-- Navbar -->
+<nav class="prof-nav">
+  <button class="prof-nav-back" onclick="window.location.href='index.html'">
+    <i class="fas fa-arrow-left"></i>
+  </button>
+  <div class="prof-nav-logo">FILMHORIZON</div>
+</nav>
+
+<!-- Profile content -->
+<div style="padding-top:60px;">
+
+  <!-- Hero -->
+  <div class="prof-hero">
+    <div class="prof-inner">
+      <div class="prof-avatar-row">
+        <div class="prof-avatar-big" id="profAvatarBig"></div>
+        <div class="prof-name-block">
+          <div class="prof-name" id="profName"></div>
+          <div class="prof-email" id="profEmail"></div>
+          <span class="prof-plan-badge free" id="profPlanBadge"><i class="fas fa-star"></i> Free Plan</span>
+        </div>
+        <button onclick="logout()" style="padding:10px 20px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.6);border-radius:99px;font-family:'DM Sans',sans-serif;font-size:.82rem;cursor:pointer;transition:all .2s;align-self:flex-end;" onmouseover="this.style.background='rgba(229,9,20,.15)';this.style.color='#e50914'" onmouseout="this.style.background='rgba(255,255,255,.06)';this.style.color='rgba(255,255,255,.6)'">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+      </div>
+    </div>
+    <!-- Stats bar -->
+    <div class="prof-inner" style="padding-bottom:0;">
+      <div class="prof-stats">
+        <div class="prof-stat">
+          <div class="prof-stat-val" id="statWatched">0</div>
+          <div class="prof-stat-lbl">Titles Viewed</div>
+        </div>
+        <div class="prof-stat">
+          <div class="prof-stat-val" id="statWatchlist">0</div>
+          <div class="prof-stat-lbl">In Watchlist</div>
+        </div>
+        <div class="prof-stat">
+          <div class="prof-stat-val" id="statTrailers">0</div>
+          <div class="prof-stat-lbl">Trailers Watched</div>
+        </div>
+        <div class="prof-stat">
+          <div class="prof-stat-val" id="statPlan">FREE</div>
+          <div class="prof-stat-lbl">Current Plan</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="prof-tabs">
+    <button class="prof-tab active" id="tab-btn-history"    onclick="switchTab('history',this)">   <i class="fas fa-history"></i>  Watch History</button>
+    <button class="prof-tab"        id="tab-btn-watchlist"  onclick="switchTab('watchlist',this)"> <i class="fas fa-bookmark"></i> My Watchlist</button>
+    <button class="prof-tab"        id="tab-btn-subscription" onclick="switchTab('subscription',this)"><i class="fas fa-crown"></i>   Subscription</button>
+  </div>
+
+  <!-- Tab content -->
+  <div class="prof-inner">
+
+    <!-- WATCH HISTORY -->
+    <div class="prof-section active" id="tab-history">
+      <div class="section-heading">Watch History</div>
+      <div class="prof-grid" id="historyGrid" style="display:none"></div>
+      <div class="empty-state" id="historyEmpty">
+        <i class="fas fa-film"></i>
+        <h3>No watch history yet</h3>
+        <p>Watch trailers on any title and they will appear here.<br>
+           <a onclick="window.location.href='index.html'">Browse content →</a></p>
+      </div>
+    </div>
+
+    <!-- WATCHLIST -->
+    <div class="prof-section" id="tab-watchlist">
+      <div class="section-heading">My Watchlist</div>
+      <div class="prof-grid" id="watchlistGrid" style="display:none"></div>
+      <div class="empty-state" id="watchlistEmpty">
+        <i class="fas fa-bookmark"></i>
+        <h3>Your watchlist is empty</h3>
+        <p>Click the <strong>+</strong> on any title to save it here.<br>
+           <a onclick="window.location.href='index.html'">Browse content →</a></p>
+      </div>
+    </div>
+
+    <!-- SUBSCRIPTION -->
+    <div class="prof-section" id="tab-subscription">
+      <div class="section-heading">Subscription &amp; Billing</div>
+      <div class="plan-info-card" id="planCard">
+        <div class="plan-info-name" id="planCardName">Free Plan</div>
+        <div class="plan-info-since" id="planCardSince">Active since account creation</div>
+        <div class="plan-info-rows">
+          <div class="plan-info-row">
+            <span class="plan-info-row-lbl">Status</span>
+            <span class="plan-info-row-val green" id="planCardStatus">Active</span>
+          </div>
+          <div class="plan-divider"></div>
+          <div class="plan-info-row">
+            <span class="plan-info-row-lbl">Video Quality</span>
+            <span class="plan-info-row-val" id="planCardQuality">SD 480p</span>
+          </div>
+          <div class="plan-info-row">
+            <span class="plan-info-row-lbl">Screens</span>
+            <span class="plan-info-row-val" id="planCardScreens">1 screen</span>
+          </div>
+          <div class="plan-info-row">
+            <span class="plan-info-row-lbl">Downloads</span>
+            <span class="plan-info-row-val" id="planCardDownloads">Not available</span>
+          </div>
+          <div class="plan-info-row">
+            <span class="plan-info-row-lbl">Ads</span>
+            <span class="plan-info-row-val" id="planCardAds">With ads</span>
+          </div>
+          <div class="plan-divider"></div>
+          <div class="plan-info-row">
+            <span class="plan-info-row-lbl">Last Transaction</span>
+            <span class="plan-info-row-val" id="planCardTxn">—</span>
+          </div>
+        </div>
+        <div id="planBtnWrap">
+          <button class="plan-upgrade-btn" id="upgradeOrManageBtn" onclick="window.location.href='index.html'">
+            <i class="fas fa-bolt"></i> Upgrade Plan
+          </button>
+        </div>
+      </div>
+      <!-- Transaction History -->
+      <div style="margin-top:40px;">
+        <div class="section-heading">Transaction History</div>
+        <div id="txnSection"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+/* ════════════════════════════════════════════════════
+   FILMHORIZON — profilenew.html  (per-user localStorage DB)
+   All data is namespaced under filmHorizon_<key>_<uid>
+   so every user has a completely isolated dataset.
+════════════════════════════════════════════════════ */
+
+/* ── 1. Get current user from session ── */
+var _user = (function() {
+  try { return JSON.parse(sessionStorage.getItem('filmHorizon_user') || '{}'); } catch(e) { return {}; }
+})();
+
+/* If not logged in, redirect */
+if (!_user || !_user.email) {
+  window.location.href = 'signup.htm';
+}
+
+var _uid = _user.id || ('legacy_' + (_user.email || 'guest').replace(/[^a-z0-9]/gi,'_'));
+
+/* ── 2. Per-user storage helpers ── */
+function _dbKey(table) { return 'filmHorizon_' + table + '_' + _uid; }
+
+function _dbGet(table) {
+  try { return JSON.parse(localStorage.getItem(_dbKey(table)) || '[]'); } catch(e) { return []; }
+}
+function _dbSet(table, data) {
+  localStorage.setItem(_dbKey(table), JSON.stringify(data));
+}
+function _dbGetObj(table) {
+  try { return JSON.parse(localStorage.getItem(_dbKey(table)) || '{}'); } catch(e) { return {}; }
+}
+function _dbSetObj(table, data) {
+  localStorage.setItem(_dbKey(table), JSON.stringify(data));
+}
+
+/* ── 3. Determine user's plan (session is authoritative) ── */
+function _getPlanLabel() {
+  var sessionPlan = (_user.plan || 'free').toLowerCase().trim();
+  var planMap = {
+    free:     'FREE PLAN',
+    basic:    'BASIC PLAN',
+    premium:  'PREMIUM PLAN',
+    students: 'STUDENT PLAN'
+  };
+  // If session says paid, trust it
+  if (sessionPlan !== 'free') {
+    return planMap[sessionPlan] || (sessionPlan.toUpperCase() + ' PLAN');
+  }
+  // Otherwise also check the scoped profile in case it was upgraded
+  var prof = _dbGetObj('profile');
+  if (prof.planLabel && prof.planLabel.toLowerCase() !== 'free plan') {
+    return prof.planLabel;
+  }
+  return 'FREE PLAN';
+}
+
+/* ── 4. Render user info in hero ── */
+(function renderHero() {
+  var name  = _user.name  || _user.username || 'User';
+  var email = _user.email || '';
+
+  document.getElementById('profAvatarBig').textContent = name.charAt(0).toUpperCase();
+  document.getElementById('profName').textContent      = name;
+  document.getElementById('profEmail').textContent     = email;
+
+  var planLabel = _getPlanLabel();
+  var planKey   = planLabel.replace(' PLAN','').toLowerCase();
+  var isPaid    = planKey !== 'free';
+
+  var badge = document.getElementById('profPlanBadge');
+  var badgeClass = 'prof-plan-badge ';
+  if      (planKey === 'premium')  badgeClass += 'paid';
+  else if (planKey === 'basic')    badgeClass += 'basic';
+  else if (planKey === 'students') badgeClass += 'students';
+  else                             badgeClass += 'free';
+  badge.className = badgeClass;
+
+  var icon = isPaid ? (planKey === 'premium' ? 'fa-crown' : 'fa-check-circle') : 'fa-star';
+  badge.innerHTML = '<i class="fas ' + icon + '"></i> ' + planLabel;
+
+  document.getElementById('statPlan').textContent = planLabel.replace(' PLAN','');
+})();
+
+/* ── 5. Load and render watch history ── */
+(function renderHistory() {
+  var history = _dbGet('history');
+  var grid    = document.getElementById('historyGrid');
+  var empty   = document.getElementById('historyEmpty');
+
+  document.getElementById('statWatched').textContent = history.length;
+
+  if (!history.length) {
+    grid.style.display  = 'none';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  grid.style.display  = '';
+  grid.innerHTML = history.map(function(item) {
+    var safeTitle = (item.title || 'Unknown').replace(/'/g, "\\'");
+    var safePoster = (item.poster || '').replace(/'/g, "\\'");
+    var genres = item.genres ? item.genres.slice(0,2).join(', ') : '';
+    var when   = item.viewedAt ? ' · ' + _timeAgo(item.viewedAt) : '';
+    return '<div class="prof-card" onclick="openItemDetail(' + (item.id||0) + ',\'' + safeTitle + '\',\'' + safePoster + '\',\'' + (item.type||'') + '\')">' +
+      '<img src="' + (item.poster||'') + '" alt="' + (item.title||'') + '" onerror="this.src=\'https://placehold.co/130x195/111118/e50914?text=' + encodeURIComponent(item.title||'') + '\'">' +
+      '<div class="prof-card-play"><i class="fas fa-play"></i></div>' +
+      (item.type ? '<span class="prof-card-badge">' + item.type + '</span>' : '') +
+      '<div class="prof-card-info">' +
+        '<div class="prof-card-title">' + (item.title||'Unknown') + '</div>' +
+        '<div class="prof-card-meta">' + (item.year||'') + (genres ? ' · ' + genres : '') + when + '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+})();
+
+/* ── 6. Load and render watchlist ── */
+(function renderWatchlist() {
+  var watchlist = _dbGet('watchlist');
+  var grid  = document.getElementById('watchlistGrid');
+  var empty = document.getElementById('watchlistEmpty');
+
+  document.getElementById('statWatchlist').textContent = watchlist.length;
+
+  if (!watchlist.length) {
+    grid.style.display  = 'none';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  grid.style.display  = '';
+  grid.innerHTML = watchlist.map(function(item) {
+    var safeTitle  = (item.title || 'Unknown').replace(/'/g, "\\'");
+    var safePoster = (item.poster || '').replace(/'/g, "\\'");
+    var genres = item.genres ? item.genres.slice(0,2).join(', ') : '';
+    return '<div class="prof-card" onclick="openItemDetail(' + (item.id||0) + ',\'' + safeTitle + '\',\'' + safePoster + '\',\'' + (item.type||'') + '\')">' +
+      '<img src="' + (item.poster||'') + '" alt="' + (item.title||'') + '" onerror="this.src=\'https://placehold.co/130x195/111118/e50914?text=' + encodeURIComponent(item.title||'') + '\'">' +
+      '<div class="prof-card-play"><i class="fas fa-play"></i></div>' +
+      '<button class="prof-card-remove" title="Remove from watchlist" onclick="event.stopPropagation();removeFromWatchlist(' + (item.id||0) + ')"><i class="fas fa-times"></i></button>' +
+      (item.type ? '<span class="prof-card-badge">' + item.type + '</span>' : '') +
+      '<div class="prof-card-info">' +
+        '<div class="prof-card-title">' + (item.title||'Unknown') + '</div>' +
+        '<div class="prof-card-meta">' + (item.year||'') + (genres ? ' · ' + genres : '') + '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+})();
+
+/* ── 7. Remove from watchlist ── */
+function removeFromWatchlist(id) {
+  var list = _dbGet('watchlist').filter(function(w) { return w.id !== id; });
+  _dbSet('watchlist', list);
+  // Also sync to apps.js legacy key
+  localStorage.setItem('filmHorizon_watchlist', JSON.stringify(list));
+  localStorage.setItem('filmHorizon_watchlist_' + _uid, JSON.stringify(list));
+  showToast('Removed from Watchlist', 'fa-bookmark');
+  // Re-render
+  (function() {
+    var grid  = document.getElementById('watchlistGrid');
+    var empty = document.getElementById('watchlistEmpty');
+    document.getElementById('statWatchlist').textContent = list.length;
+    if (!list.length) {
+      grid.style.display = 'none'; empty.style.display = 'block'; return;
+    }
+    grid.style.display = ''; empty.style.display = 'none';
+    grid.innerHTML = list.map(function(item) {
+      var safeTitle  = (item.title||'Unknown').replace(/'/g,"\\'");
+      var safePoster = (item.poster||'').replace(/'/g,"\\'");
+      var genres = item.genres ? item.genres.slice(0,2).join(', ') : '';
+      return '<div class="prof-card" onclick="openItemDetail(' + (item.id||0) + ',\'' + safeTitle + '\',\'' + safePoster + '\',\'' + (item.type||'') + '\')">' +
+        '<img src="' + (item.poster||'') + '" alt="' + (item.title||'') + '" onerror="this.src=\'https://placehold.co/130x195/111118/e50914?text=' + encodeURIComponent(item.title||'') + '\'">' +
+        '<div class="prof-card-play"><i class="fas fa-play"></i></div>' +
+        '<button class="prof-card-remove" title="Remove" onclick="event.stopPropagation();removeFromWatchlist(' + (item.id||0) + ')"><i class="fas fa-times"></i></button>' +
+        (item.type ? '<span class="prof-card-badge">' + item.type + '</span>' : '') +
+        '<div class="prof-card-info"><div class="prof-card-title">' + (item.title||'Unknown') + '</div>' +
+        '<div class="prof-card-meta">' + (item.year||'') + (genres ? ' · ' + genres : '') + '</div></div></div>';
+    }).join('');
+  })();
+}
+
+/* ── 8. Render subscription tab ── */
+(function renderSubscription() {
+  var PLAN_INFO = {
+    free:     { quality:'SD 480p',           screens:'1 screen',  downloads:'Not available', ads:'With ads',  color:'#888' },
+    basic:    { quality:'Full HD 1080p',      screens:'1 screen',  downloads:'Yes',           ads:'Ad-free',   color:'#4fc3f7' },
+    premium:  { quality:'4K Ultra HD + HDR',  screens:'4 screens', downloads:'Unlimited',     ads:'Ad-free',   color:'#f5c518' },
+    students: { quality:'Full HD 1080p',      screens:'1 screen',  downloads:'Yes',           ads:'Ad-free',   color:'#81c784' }
+  };
+
+  var planLabel = _getPlanLabel();
+  var planKey   = planLabel.replace(' PLAN','').toLowerCase();
+  var info      = PLAN_INFO[planKey] || PLAN_INFO.free;
+  var isPaid    = planKey !== 'free';
+
+  // Card header
+  document.getElementById('planCardName').textContent  = planLabel;
+  document.getElementById('planCardName').style.color  = info.color;
+
+  // Load this user's profile for planSince / lastTxn
+  var prof = _dbGetObj('profile');
+
+  document.getElementById('planCardSince').textContent = prof.planSince
+    ? 'Active since ' + new Date(prof.planSince).toLocaleDateString('en-IN', {day:'numeric',month:'long',year:'numeric'})
+    : 'Active since account creation';
+  document.getElementById('planCardStatus').textContent    = 'Active';
+  document.getElementById('planCardQuality').textContent   = info.quality;
+  document.getElementById('planCardScreens').textContent   = info.screens;
+  document.getElementById('planCardDownloads').textContent = info.downloads;
+  document.getElementById('planCardAds').textContent       = info.ads;
+  document.getElementById('planCardTxn').textContent       = prof.lastTxn || '—';
+
+  // Upgrade vs Manage button
+  var btnWrap = document.getElementById('planBtnWrap');
+  if (isPaid) {
+    btnWrap.innerHTML = '<button class="plan-manage-btn"><i class="fas fa-check-circle"></i> ' + planLabel + ' — Active</button>';
+  } else {
+    btnWrap.innerHTML = '<button class="plan-upgrade-btn" onclick="window.location.href=\'index.html\'"><i class="fas fa-bolt"></i> Upgrade Plan</button>';
+  }
+
+  // Trailer count
+  var trailerHistory = _dbGet('trailer_history');
+  document.getElementById('statTrailers').textContent = trailerHistory.length;
+
+  // Transaction table
+  var txnEl = document.getElementById('txnSection');
+  if (prof.lastTxn) {
+    var amounts = { free:0, basic:199, premium:499, students:99 };
+    txnEl.innerHTML =
+      '<table class="txn-table">' +
+        '<thead><tr><th>Date</th><th>Plan</th><th>Amount</th><th>Ref ID</th><th>Status</th></tr></thead>' +
+        '<tbody><tr>' +
+          '<td>' + (prof.planSince ? new Date(prof.planSince).toLocaleDateString('en-IN') : '—') + '</td>' +
+          '<td>' + planLabel + '</td>' +
+          '<td>₹' + (amounts[planKey] || 0) + '</td>' +
+          '<td><code style="font-size:.78rem;color:#888;">' + prof.lastTxn + '</code></td>' +
+          '<td><span class="txn-badge success"><i class="fas fa-check-circle"></i> Success</span></td>' +
+        '</tr></tbody>' +
+      '</table>';
+  } else {
+    txnEl.innerHTML = '<div class="empty-state"><i class="fas fa-receipt"></i><h3>No transactions yet</h3><p>Upgrade your plan to see billing history here.</p></div>';
+  }
+})();
+
+/* ── 9. Tab switching ── */
+function switchTab(name, btn) {
+  document.querySelectorAll('.prof-tab').forEach(function(t) { t.classList.remove('active'); });
+  document.querySelectorAll('.prof-section').forEach(function(s) { s.classList.remove('active'); });
+  btn.classList.add('active');
+  var section = document.getElementById('tab-' + name);
+  if (section) section.classList.add('active');
+}
+
+/* ── 10. Open item detail (navigate back to home) ── */
+function openItemDetail(id, title, poster, type) {
+  if (id) {
+    sessionStorage.setItem('_openDetailId', id);
+    window.location.href = 'index.html';
+  }
+}
+
+/* ── 11. Helpers ── */
+function _timeAgo(iso) {
+  var diff = Date.now() - new Date(iso).getTime();
+  var mins = Math.floor(diff / 60000);
+  if (mins < 1)  return 'just now';
+  if (mins < 60) return mins + 'm ago';
+  var hrs = Math.floor(mins / 60);
+  if (hrs < 24)  return hrs + 'h ago';
+  return Math.floor(hrs / 24) + 'd ago';
+}
+
+function showToast(msg, icon) {
+  icon = icon || 'fa-info-circle';
+  var wrap = document.getElementById('toastWrap');
+  if (!wrap) return;
+  var toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.innerHTML = '<i class="fas ' + icon + '"></i><span>' + msg + '</span>';
+  wrap.appendChild(toast);
+  requestAnimationFrame(function() {
+    requestAnimationFrame(function() { toast.classList.add('show'); });
+  });
+  setTimeout(function() {
+    toast.classList.remove('show');
+    setTimeout(function() { toast.remove(); }, 400);
+  }, 3000);
+}
+
+function logout() {
+  sessionStorage.removeItem('filmHorizon_user');
+  showToast('Logged out successfully', 'fa-sign-out-alt');
+  setTimeout(function() { window.location.href = 'signup.htm'; }, 900);
+}
+</script>
+</body>
+</html>
